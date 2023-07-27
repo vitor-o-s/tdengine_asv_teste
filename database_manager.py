@@ -19,13 +19,14 @@ def close_connection(conn: taos.TaosConnection):
     return conn.close()
 
 def create_database(conn: taos.TaosConnection, 
-                    database_name: str):
+                    database_name: str,
+                    retention_time: str):
     conn.execute("CREATE DATABASE IF NOT EXISTS "+ database_name+
-                 " KEEP 4200d")
+                 " KEEP "+ retention_time)
 
 def use_database(conn: taos.TaosConnection, 
                     database_name: str):
-    conn.execute("USE "+ database_name)
+    conn.select_db(database_name) # execute("USE "+ database_name)
 
 def drop_database(conn: taos.TaosConnection, 
                     database_name: str):
@@ -54,3 +55,12 @@ def insert_row(conn: taos.TaosConnection,
                 table_name: str,
                 values: str):
     conn.execute("INSERT INTO "+ table_name +" VALUES ()"+ values +");")
+
+'''def time_retention(conn: taos.TaosConnection,
+                    database_name: str,
+                    values: int = 36500):
+    conn.execute("ALTER DATABASE "+ database_name +" KEEP "+ str(values)+";")'''
+
+def query (conn: taos.TaosConnection,
+           query: str):
+    print('QUERY RESULT:',conn.query(query))

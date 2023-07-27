@@ -4,6 +4,7 @@ class TDengine():
     
     def __init__(self,
                 database: str,
+                retention_time: str,
                 stable_name: str, 
                 schema: str, 
                 tags: str,
@@ -11,11 +12,12 @@ class TDengine():
                 **kwargs) -> None:
         self.conn = db_manager.open_connection()
         self.database = database
+        self.retention_time = retention_time
         self.stable_name = stable_name
         self.schema = schema
         self.tags = tags
         self.tables = tables
-        db_manager.create_database(self.conn, self.database)
+        db_manager.create_database(self.conn, self.database, self.retention_time)
         db_manager.use_database(self.conn, self.database)
     
     def create_stable(self):
@@ -41,9 +43,13 @@ class TDengine():
         return db_manager.drop_database(self.conn, self.database)
 
 
+    def query(self, query: str):
+        return db_manager.query(self.conn, query)
+
 if __name__ == "__main__":
     database_name = "teste"
     stable_name = "phasor"
+    retention_time = "4300d"
     schema = "(ts TIMESTAMP, magnitude FLOAT, Angle FLOAT, frequency FLOAT)"
     tags = "Id BINARY(10)"
     tables = [{"name": "device01", "tag": 1},
@@ -61,13 +67,18 @@ if __name__ == "__main__":
 
     # OOP start
     # Setup
-    my_object = TDengine(database_name, stable_name, schema, tags, tables)
-    # my_object.drop_database()
+    my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
     my_object.create_stable()
     my_object.create_tables()
 
     # Test
     my_object.copy_data(tables[0]['name'], 'data/1klines/first_loc.csv')
+
+    query = '''
+    SELECT *
+    FROM device01
+    '''
+    my_object.query(query)
 
     # Tear Down
     my_object.drop_database()
