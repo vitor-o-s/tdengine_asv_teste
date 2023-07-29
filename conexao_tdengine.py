@@ -1,5 +1,20 @@
 import database_manager as db_manager
 
+database_name = "teste"
+stable_name = "phasor"
+retention_time = "4300d"
+schema = "(ts TIMESTAMP, magnitude FLOAT, Angle FLOAT, frequency FLOAT)"
+tags = "Id BINARY(10)"
+tables = [{"name": "city01", "tag": 1},
+            {"name": "city02", "tag": 2},
+            {"name": "city03", "tag": 3},
+            {"name": "city04", "tag": 4},
+            {"name": "city05", "tag": 5},
+            {"name": "city06", "tag": 6}]
+BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
+
+
+
 class TDengine():
     
     def __init__(self,
@@ -35,6 +50,9 @@ class TDengine():
     
     def copy_data(self, table, path):
         db_manager.insert_file(self.conn, table, path)
+    
+    def copy_files(self, tables, paths):
+        db_manager.insert_multiple_files(self.conn, tables, paths)
 
     def close_conn(self):
         return db_manager.close_connection(self.conn)
@@ -46,37 +64,32 @@ class TDengine():
     def query(self, query: str):
         return db_manager.query(self.conn, query)
 
-if __name__ == "__main__":
-    database_name = "teste"
-    stable_name = "phasor"
-    retention_time = "4300d"
-    schema = "(ts TIMESTAMP, magnitude FLOAT, Angle FLOAT, frequency FLOAT)"
-    tags = "Id BINARY(10)"
-    tables = [{"name": "device01", "tag": 1},
-              {"name": "device02", "tag": 2},
-              {"name": "device03", "tag": 3}]
-    # conn = db_manager.open_connection()
-
-    # db_manager.create_database(conn, database_name)
-    # db_manager.use_database(conn, "teste")
-
-    # db_manager.create_stable(conn, stable_name, schema, tags)
-
-    # db_manager.drop_database(conn, "teste") # tear_down
-    # db_manager.close_connection(conn)
-
-    # OOP start
-    # Setup
+def setup():
     my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
     my_object.create_stable()
     my_object.create_tables()
+    return my_object
 
+
+
+if __name__ == "__main__":
+   
+    my_object = setup()
     # Test
-    my_object.copy_data(tables[0]['name'], 'data/1klines/first_loc.csv')
+    my_object.copy_data(tables[0]['name'], BASE_DIR + '1klines/first_loc.csv')
+    my_object.copy_files(
+        ["city01", "city02", "city03", "city04", "city05", "city06"],
+        [BASE_DIR + '1klines/first_loc.csv',
+         BASE_DIR + '1klines/second_loc.csv',
+         BASE_DIR + '1klines/third_loc.csv',
+         BASE_DIR + '1klines/fourth_loc.csv',
+         BASE_DIR + '1klines/fifth_loc.csv',
+         BASE_DIR + '1klines/sixth_loc.csv']
+        )
 
     query = '''
     SELECT *
-    FROM device01
+    FROM city01
     '''
     my_object.query(query)
 
