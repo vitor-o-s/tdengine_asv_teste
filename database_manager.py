@@ -1,5 +1,4 @@
 import taos
-# from logging import Logger
 
 def open_connection(host: str = "localhost",
                     port: int = 6030,
@@ -51,16 +50,29 @@ def insert_file(conn: taos.TaosConnection,
                 path: str):
     conn.execute("INSERT INTO "+ table_name +" FILE '"+ path +"';")
 
+def insert_multiple_files(
+        conn: taos.TaosConnection,
+        tables_name: list[str],
+        paths: list[str]
+        ):
+    query = "INSERT INTO "
+    for table, path in zip(tables_name, paths):
+        query += table +" FILE '"+ path +"' "
+    query += ";"
+    # print(query)
+    conn.execute(query)
+
 def insert_row(conn: taos.TaosConnection,
                 table_name: str,
                 values: str):
     conn.execute("INSERT INTO "+ table_name +" VALUES ()"+ values +");")
 
-'''def time_retention(conn: taos.TaosConnection,
-                    database_name: str,
-                    values: int = 36500):
-    conn.execute("ALTER DATABASE "+ database_name +" KEEP "+ str(values)+";")'''
-
 def query (conn: taos.TaosConnection,
            query: str):
-    print('QUERY RESULT:',conn.query(query))
+    result: taos.TaosResult = conn.query(query)
+    print('FIELD COUNT:', result.field_count)
+    print('ROW_COUNT:', result.row_count)
+    rows = result.fetch_all_into_dict()
+    print('ROW_COUNT:', result.row_count)
+    for row in result:
+        print('ROW:',row)
