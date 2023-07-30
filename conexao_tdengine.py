@@ -1,4 +1,4 @@
-import database_manager as db_manager
+import taos
 
 database_name = "teste"
 stable_name = "phasor"
@@ -17,52 +17,84 @@ BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
 
 class TDengine():
     
-    def __init__(self,
-                database: str,
-                retention_time: str,
-                stable_name: str, 
-                schema: str, 
-                tags: str,
-                tables: list, 
-                **kwargs) -> None:
-        self.conn = db_manager.open_connection()
+    def __init__(
+            self,
+            database: str,
+            retention_time: str,
+            stable_name: str, 
+            schema: str, 
+            tags: str,
+            tables: list,
+            host: str = "localhost",
+            port: int = 6030,
+            user: str = "root",
+            password: str = "taosdata", 
+            **kwargs
+            ) -> None:
         self.database = database
         self.retention_time = retention_time
         self.stable_name = stable_name
         self.schema = schema
         self.tags = tags
         self.tables = tables
-        db_manager.create_database(self.conn, self.database, self.retention_time)
-        db_manager.use_database(self.conn, self.database)
+        self.conn = taos.connect(host=host,
+                                 port=port,
+                                 user=user,
+                                 password=password)
+    
+        print('client info:', self.conn.client_info)
+        print('server info:', self.conn.server_info)
+        self.conn.execute("CREATE DATABASE IF NOT EXISTS "+ self.database+" KEEP "+ self.retention_time)
+        self.conn.select_db(self.database)
     
     def create_stable(self):
-        return db_manager.create_stable(self.conn,
-                                        self.stable_name,
-                                        self.schema,
-                                        self.tags)
-    
+        create_stable_query = f"""
+        CREATE STABLE IF NOT EXISTS {self.stable_name}
+        {self.schema} 
+        TAGS({self.tags});
+        """
+        # print("Running query:\n",create_stable_query)
+        self.conn.execute(create_stable_query)
+  
     def create_tables(self):
         for item in self.tables:
-            db_manager.create_table(self.conn,
-                                    item['name'],
-                                    self.stable_name,
-                                    item['tag'])
+            create_table_query = f"""
+                CREATE TABLE IF NOT EXISTS {item['name']} 
+                USING {self.stable_name} 
+                TAGS ({str(item['tag'])});
+                """
+            self.conn.execute(create_table_query)
     
-    def copy_data(self, table, path):
-        db_manager.insert_file(self.conn, table, path)
-    
-    def copy_files(self, tables, paths):
-        db_manager.insert_multiple_files(self.conn, tables, paths)
+    def copy_files(self, tables: list[str], paths: list[str]):
+        """
+        """
+        file_query = "INSERT INTO \n"
+        for table, path in zip(tables, paths):
+            file_query += table +" FILE '"+ path +"'\n"
+        file_query += ";"
+        print(file_query)
+        self.conn.execute(file_query)
+
+    def insert_row(self, table: str, value: str):
+        self.conn.execute("INSERT INTO "+ table +" VALUES ()"+ value +");")
 
     def close_conn(self):
-        return db_manager.close_connection(self.conn)
+        print('Close connection!')
+        self.conn.close()
     
     def drop_database(self):
-        return db_manager.drop_database(self.conn, self.database)
-
+        drop_db_query = "DROP DATABASE IF EXISTS "+ self.database
+        print("Excuting the following query:\n",drop_db_query)
+        self.conn.execute(drop_db_query)
 
     def query(self, query: str):
-        return db_manager.query(self.conn, query)
+        result: taos.TaosResult = self.conn.query(query)
+        print('FIELD COUNT:', result.field_count)
+        print('ROW_COUNT:', result.row_count)
+        rows = result.fetch_all_into_dict()
+        print('ROW_COUNT:', result.row_count)
+        for row in result:
+            print('ROW:',row)
 
 def setup():
     my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
@@ -76,7 +108,7 @@ if __name__ == "__main__":
    
     my_object = setup()
     # Test
-    my_object.copy_data(tables[0]['name'], BASE_DIR + '1klines/first_loc.csv')
+    my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/first_loc.csv'])
     my_object.copy_files(
         ["city01", "city02", "city03", "city04", "city05", "city06"],
         [BASE_DIR + '1klines/first_loc.csv',
