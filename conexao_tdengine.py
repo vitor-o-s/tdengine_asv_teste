@@ -1,5 +1,6 @@
 import taos
 import os
+# import timeit 
 
 database_name = "teste"
 stable_name = "phasor"
@@ -117,6 +118,8 @@ if __name__ == "__main__":
     # Test
     my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/1_loc.csv'])
     my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
+    # copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
+    # print("--- %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
 
     query = '''
     SELECT *
