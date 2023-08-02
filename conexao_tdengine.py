@@ -1,4 +1,5 @@
 import taos
+import os
 
 database_name = "teste"
 stable_name = "phasor"
@@ -12,6 +13,7 @@ tables = [{"name": "city01", "tag": 1},
             {"name": "city05", "tag": 5},
             {"name": "city06", "tag": 6}]
 BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
+ordered_tags_list = ["city01", "city02", "city03", "city04", "city05", "city06"]
 
 
 
@@ -102,22 +104,19 @@ def setup():
     my_object.create_tables()
     return my_object
 
+def get_file_paths(base_dir, dir_name):
+    dir_path = os.path.join(base_dir, dir_name)
+    file_names = os.listdir(dir_path)
+    file_paths = [os.path.join(dir_path, file_name) for file_name in file_names]
+    return sorted(file_paths)
 
 
 if __name__ == "__main__":
    
     my_object = setup()
     # Test
-    my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/first_loc.csv'])
-    my_object.copy_files(
-        ["city01", "city02", "city03", "city04", "city05", "city06"],
-        [BASE_DIR + '1klines/first_loc.csv',
-         BASE_DIR + '1klines/second_loc.csv',
-         BASE_DIR + '1klines/third_loc.csv',
-         BASE_DIR + '1klines/fourth_loc.csv',
-         BASE_DIR + '1klines/fifth_loc.csv',
-         BASE_DIR + '1klines/sixth_loc.csv']
-        )
+    my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/1_loc.csv'])
+    my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
 
     query = '''
     SELECT *
