@@ -1,0 +1,1 @@
+Usando o timeit para os arquivos de 648K levou 8.97s (única execução)
