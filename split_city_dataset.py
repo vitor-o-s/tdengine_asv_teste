@@ -15,12 +15,12 @@ def split_dataset(path: str):
     sixth_loc = full_dataset.iloc[:, [0, 11, 12, 18]]
 	
 	# Save new datasets 
-    first_loc.to_csv(path + '/first_loc.csv', index=False, header=False)
-    second_loc.to_csv(path + '/second_loc.csv', index=False, header=False)
-    third_loc.to_csv(path + '/third_loc.csv', index=False, header=False)
-    fourth_loc.to_csv(path + '/fourth_loc.csv', index=False, header=False)
-    fifth_loc.to_csv(path + '/fifth_loc.csv', index=False, header=False)
-    sixth_loc.to_csv(path + '/sixth_loc.csv', index=False, header=False)
+    first_loc.to_csv(path + '/1_loc.csv', index=False, header=False)
+    second_loc.to_csv(path + '/2_loc.csv', index=False, header=False)
+    third_loc.to_csv(path + '/3_loc.csv', index=False, header=False)
+    fourth_loc.to_csv(path + '/4_loc.csv', index=False, header=False)
+    fifth_loc.to_csv(path + '/5_loc.csv', index=False, header=False)
+    sixth_loc.to_csv(path + '/6_loc.csv', index=False, header=False)
 
 
 if __name__ == "__main__":
