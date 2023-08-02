@@ -1,7 +1,9 @@
 # Write the benchmarking functions here.
 # See "Writing benchmarks" in the asv docs for more information.
-from ..conexao_tdengine import TDengine 
-
+import sys
+sys.path.append("..")
+from conexao_tdengine import TDengine
+# from tdengin..conexao_tdengine import TDengine 
 # , tables, BASE_DIR, ordered_tags_list, get_file_paths, database_name, retention_time, stable_name, schema, tags
 
 database_name = "teste"
