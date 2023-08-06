@@ -161,3 +161,6 @@ cython_debug/
 
 # Data Untracked
 data/
+
+# VSCode Config
+.vscode/
