@@ -1,5 +1,8 @@
-import taos
+import concurrent.futures
 import os
+import taos
+
+from utils import get_balanced_sets
 # import timeit 
 
 database_name = "teste"
@@ -142,6 +145,40 @@ class TDengine():
         for row in rows:
             print('ROW:', row)
 
+    @staticmethod
+    def write_to_table(self, conn, table, tags, lines_set):
+        cursor = conn.cursor()
+        for line in list(lines_set):
+            processed_line = f"INSERT INTO {table} USING {self.stable_name} TAGS({tags}) VALUES {line};"
+            cursor.execute(processed_line)
+        cursor.close()
+        conn.close()
+    
+    def write_balanced_sets_to_table_parallel(self, table: str, number: int, path: str, host: str = "localhost", port: int = 6030, user: str = "root", password: str = "taosdata"):
+        """
+        Writes balanced sets of lines from a file to a table using multiple connections in parallel.
+
+        Parameters:
+        - table (str): The name of the table to write to.
+        - number (int): The number of sets (and connections) to use.
+        - path (str): The path to the file.
+        - host, port, user, password: Connection parameters for the database.
+        """
+        # Get the balanced sets of lines
+        sets_list = get_balanced_sets(number, path)
+        
+        # Use ThreadPoolExecutor to parallelize the writing process
+        with concurrent.futures.ThreadPoolExecutor(max_workers=number) as executor:
+            futures = []
+            for lines_set in sets_list:
+                conn = taos.connect(host=host, port=port, user=user, password=password)
+                futures.append(executor.submit(self.write_to_table, self, conn, table, tags, lines_set))
+            
+            # Wait for all threads to complete
+            for future in concurrent.futures.as_completed(futures):
+                future.result()
+
+
 
 def setup():
     my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
@@ -165,15 +202,14 @@ if __name__ == "__main__":
     # copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
     # print("--- %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
 
-    # Write Lines 
-
+    # Write Parallel Lines 
+    my_object.write_balanced_sets_to_table_parallel()
 
     # Queries Tests
     # The 1k lines files starts in '2012-01-03 01:00:00.000'
     # and end in '2012-01-03 01:00:33.300'
     # For all the test the interval must be here (?)
     my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
-
     my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
     my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
     
