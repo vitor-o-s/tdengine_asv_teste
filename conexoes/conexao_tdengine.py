@@ -96,8 +96,52 @@ class TDengine():
         print('ROW_COUNT:', result.row_count)
         rows = result.fetch_all_into_dict()
         print('ROW_COUNT:', result.row_count)
-        for row in result:
-            print('ROW:',row)
+        return 
+    
+        # for row in rows:
+        #     print('ROW:',row)
+
+    def interval_query(self, table_name: str, start_time: str, end_time: str):
+        """
+        Query data from a table within a specified time interval.
+        """
+        query = f"""
+        SELECT *
+        FROM {table_name}
+        WHERE ts BETWEEN '{start_time}' AND '{end_time}'
+        """
+        result: taos.TaosResult = self.conn.query(query)
+        rows = result.fetch_all_into_dict()
+        for row in rows:
+            print('ROW:', row)
+
+    def exact_query(self, table_name: str, timestamp: str):
+        """
+        Query data from a table for a specific timestamp.
+        """
+        query = f"""
+        SELECT *
+        FROM {table_name}
+        WHERE ts = '{timestamp}'
+        """
+        result: taos.TaosResult = self.conn.query(query)
+        rows = result.fetch_all_into_dict()
+        for row in rows:
+            print('ROW:', row)
+
+    def aggregation_query(self, table_name: str, aggregation_function: str, column_name: str):
+        """
+        Perform an aggregation operation on the data.
+        """
+        query = f"""
+        SELECT {aggregation_function}({column_name})
+        FROM {table_name}
+        """
+        result: taos.TaosResult = self.conn.query(query)
+        rows = result.fetch_all_into_dict()
+        for row in rows:
+            print('ROW:', row)
+
 
 def setup():
     my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
@@ -115,15 +159,28 @@ def get_file_paths(base_dir, dir_name):
 if __name__ == "__main__":
    
     my_object = setup()
-    # Test
+    # Batch Tests
     my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/1_loc.csv'])
     my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
     # copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
     # print("--- %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
 
+    # Write Lines 
+
+
+    # Queries Tests
+    # The 1k lines files starts in '2012-01-03 01:00:00.000'
+    # and end in '2012-01-03 01:00:33.300'
+    # For all the test the interval must be here (?)
+    my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
+
+    my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
+    my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
+    
     query = '''
     SELECT *
     FROM city01
+    LIMIT 10
     '''
     my_object.query(query)
 
