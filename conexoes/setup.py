@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='pashorbench',
-    version='0.1',
+    name='conexoes',
+    version='0.0.1',
     packages=find_packages(),
     description='A ASV Benchmark based for Timeseries databases',
     author='Vitor O Santos',
