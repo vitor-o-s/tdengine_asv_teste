@@ -1,0 +1,19 @@
+{
+    "benchmarks.TimeSuite.time_copy_files": {
+        "code": "class TimeSuite:\n    def time_copy_files(self):\n        self.my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))\n\n    def setup(self):\n        self.my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)\n        self.my_object.create_stable()\n        self.my_object.create_tables()",
+        "min_run_count": 2,
+        "name": "benchmarks.TimeSuite.time_copy_files",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 60.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "0a8a397a9c55533a6b3b673a6750c68465c0d3a77f4ecafa095602204c814b6e",
+        "warmup_time": -1
+    },
+    "version": 2
+}

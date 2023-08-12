@@ -1,0 +1,9 @@
+{
+    "arch": "x86_64",
+    "cpu": "Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz (4 cores)",
+    "machine": "notebook",
+    "num_cpu": "4",
+    "os": "Ubuntu 22.04.2 LTS",
+    "ram": "16GB",
+    "version": 1
+}

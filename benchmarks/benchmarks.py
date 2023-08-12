@@ -7,6 +7,7 @@ sys.path.append("..")
 # print(sys.path)
 # from conexoes.conexao_tdengine import TDengine, tables, BASE_DIR, ordered_tags_list, get_file_paths, database_name, retention_time, stable_name, schema, tags
 from conexoes import conexao_tdengine
+# from conexao_tdengine import TDengine# conexao_tdengine
 
 database_name = "teste"
 stable_name = "phasor"
