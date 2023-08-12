@@ -2,7 +2,7 @@ import concurrent.futures
 import os
 import taos
 
-from utils import get_balanced_sets
+from utils.utils import get_balanced_sets
 # import timeit 
 
 database_name = "teste"
