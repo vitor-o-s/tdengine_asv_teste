@@ -1,0 +1,2 @@
+class Timescale():
+    pass
