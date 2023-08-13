@@ -16,7 +16,7 @@
     // The Python project's subdirectory in your repo.  If missing or
     // the empty string, the project is assumed to be located at the root
     // of the repository.
-    //"repo_subdir": "/conexoes/",
+    //"repo_subdir": "./conexoes",
 
     // Customizable commands for building, installing, and
     // uninstalling the project. See asv.conf.json documentation.
@@ -136,7 +136,7 @@
 
     // The directory (relative to the current directory) that benchmarks are
     // stored in.  If not provided, defaults to "benchmarks"
-    // "benchmark_dir": "benchmarks",
+    //"benchmark_dir": "./benchmarks/",
 
     // The directory (relative to the current directory) to cache the Python
     // environments in.  If not provided, defaults to "env"
@@ -181,11 +181,11 @@
     //    "some_benchmark": 0.01,     // Threshold of 1%
     //    "another_benchmark": 0.5,   // Threshold of 50%
     // },
-    "build_command": [
-        "python setup.py build"
-    ],
+    //"build_command": [
+    //    "python setup.py build"
+    //],
 
-    "install": [
-        "pip install -e ./conexoes"
-    ]
+    //"install": [
+    //    "pip install -e ./conexoes"
+    //]
 }

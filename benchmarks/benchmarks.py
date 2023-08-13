@@ -3,11 +3,13 @@
 import sys
 # print(sys.path)
 sys.path.append("..")
-sys.path.insert(0, '../conexoes')
-# print(sys.path)
+# sys.path.insert(0, '../conexoes')
+# sys.path.remove("//home/dell/tcc_package/tdengine_asv_teste/conexoes")
+
+print(sys.path)
 # from conexoes.conexao_tdengine import TDengine, tables, BASE_DIR, ordered_tags_list, get_file_paths, database_name, retention_time, stable_name, schema, tags
-from conexoes.conexao_tdengine import TDengine
-# from conexao_tdengine import TDengine# conexao_tdengine
+# from conexoes.conexao_tdengine import TDengine
+from conexoes.conexao_tdengine import TDengine# conexao_tdengine
 
 database_name = "teste"
 stable_name = "phasor"
@@ -39,7 +41,7 @@ class TimeSuite:
         self.my_object.create_tables()
     
     def time_copy_files(self):
-        self.my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
+       self.my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
 
 """    def time_keys(self):
         for key in self.d.keys():
