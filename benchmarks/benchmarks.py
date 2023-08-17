@@ -2,8 +2,8 @@
 # See "Writing benchmarks" in the asv docs for more information.
 import sys
 # print(sys.path)
-# sys.path.append("..")
-# sys.path.insert(0, '../conexoes')
+sys.path.append("..")
+sys.path.insert(0, './conexoes')
 # sys.path.remove("//home/dell/tcc_package/tdengine_asv_teste/conexoes")
 import os
 pwd = os.getcwd()
