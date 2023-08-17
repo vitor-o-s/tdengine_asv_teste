@@ -3,8 +3,12 @@
 import sys
 # print(sys.path)
 sys.path.append("..")
-# sys.path.insert(0, '../conexoes')
+sys.path.insert(0, '../conexoes')
 # sys.path.remove("//home/dell/tcc_package/tdengine_asv_teste/conexoes")
+import os
+print("PWD:::::",os.getcwd())
+
+print("LIST DIR:::::",os.listdir(os.getcwd()))
 
 print(sys.path)
 # from conexoes.conexao_tdengine import TDengine, tables, BASE_DIR, ordered_tags_list, get_file_paths, database_name, retention_time, stable_name, schema, tags
