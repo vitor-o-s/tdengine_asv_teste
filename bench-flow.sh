@@ -35,8 +35,8 @@ echo "timescaledb Stoped"
 
 # Start Druid
 echo "Downloading files"
-wget 
-wget
+wget  https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/docker-compose.yml
+wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/environment
 
 echo "Starting Druid Container"
 sudo docker compose up -d
