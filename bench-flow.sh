@@ -2,6 +2,9 @@ echo "Pulling images"
 docker pull timescale/timescaledb:2.11.2-pg14
 docker pull tdengine/tdengine:3.0.5.0
 
+echo "Downloading Druid files"
+wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/docker-compose.yml
+wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/environment
 
 echo "Setting Up enviroment"
 source /home/dell/tcc_package/tdengine_asv_teste/.venv/bin/activate
@@ -39,10 +42,6 @@ wait
 echo "timescaledb Stoped"
 
 # Start Druid
-echo "Downloading files"
-wget  https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/docker-compose.yml
-wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/environment
-
 echo "Starting Druid Container"
 sudo docker compose up -d
 wait
@@ -59,4 +58,4 @@ sudo docker compose down
 echo "Druid Stoped"
 
 # Generate Results
-python3 gen_graphics.py
+python3 utils/gen_graphics.py
