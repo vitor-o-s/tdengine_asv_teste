@@ -1,0 +1,13 @@
+* [X] [Technology](https://druid.apache.org/technology/)
+* [] [Segmentos do arquivo de disco](https://druid.apache.org/docs/latest/design/segments)
+* [] [Design de tabela](https://druid.apache.org/docs/latest/ingestion/schema-design)
+* [] [Sobre o processo de ingestão](https://druid.apache.org/docs/latest/ingestion/)
+* [] [Arquitetura](https://druid.apache.org/docs/latest/design/architecture)
+* [] [Gerenciamento de Dados](https://druid.apache.org/docs/latest/data-management/)
+* [] [Sobre consultas](https://druid.apache.org/docs/latest/querying/sql)
+* [] [Paper sobre a arquitetura do Druid](http://static.druid.io/docs/druid.pdf)
+* [] [Explicação de como o algoritmo de query aproximada funciona](https://www.youtube.com/watch?v=Hpd3f_MLdXo)
+* [] [Introduction to Apache Druid](https://druid.apache.org/docs/latest/design/)
+* [X] [Druid Schema Model](https://druid.apache.org/docs/latest/ingestion/schema-model)
+* [] []()
+

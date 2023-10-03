@@ -1,3 +1,8 @@
+echo "Pulling images"
+docker pull timescale/timescaledb:2.11.2-pg14
+docker pull tdengine/tdengine:3.0.5.0
+
+
 echo "Setting Up enviroment"
 source /home/dell/tcc_package/tdengine_asv_teste/.venv/bin/activate
 pip install -r requirements.txt
