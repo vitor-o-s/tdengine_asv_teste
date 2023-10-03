@@ -76,7 +76,6 @@ class TDengine():
         for table, path in zip(tables, paths):
             file_query += table +" FILE '"+ path +"'\n"
         file_query += ";"
-        print(file_query)
         self.conn.execute(file_query)
 
     def insert_row(self, table: str, value: str):
@@ -93,11 +92,7 @@ class TDengine():
 
     def query(self, query: str):
         result: taos.TaosResult = self.conn.query(query)
-        print('FIELD COUNT:', result.field_count)
-        print('ROW_COUNT:', result.row_count)
-        rows = result.fetch_all_into_dict()
-        print('ROW_COUNT:', result.row_count)
-        return
+        return result
 
     def interval_query(self, table_name: str, start_time: str, end_time: str):
         """
@@ -189,32 +184,31 @@ if __name__ == "__main__":
     # my_object.write_balanced_sets_to_table_parallel()
 
     # Queries Tests
-    # The 1k lines files starts in '2012-01-03 01:00:00.000'
-    # and end in '2012-01-03 01:00:33.300'
-    # For all the test the interval must be here (?)
+
+    '''
+    The 1k lines files starts in '2012-01-03 01:00:00.000'
+    and end in '2012-01-03 01:00:33.300'
+    For all the test the interval must be here (?)
+    '''
+
+    # Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e '2012/01/03 01:02:24.833'
     interval_query_lambda = lambda: my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
     print("---Interval query time: %s seconds ---" % timeit.timeit(interval_query_lambda, number=1))
-
+    # Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
     exact_query_lambda = lambda: my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
     print("---Exact query time: %s seconds ---" % timeit.timeit(exact_query_lambda, number=1))
-
+    # Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
     agg_query_lambda = lambda: my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
     print("---Interval query time: %s seconds ---" % timeit.timeit(agg_query_lambda, number=1))
-
-    '''
-    • Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
-    • Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
-    • Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'
-    e '2012/01/03 01:02:24.833'?
-    • Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e
-    '2012/01/03 01:02:24.833'
-    '''
-    query = '''
-    SELECT *
+    # Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'e '2012/01/03 01:02:24.833'?
+    mean_between_query = '''
+    SELECT AVG(magnitude)
     FROM city01
-    LIMIT 10
+    WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833'
     '''
-    my_object.query(query)
+    agg_between_lambda = lambda: my_object.query(mean_between_query)
+    print("---Interval agregation query time: %s seconds ---" % timeit.timeit(agg_between_lambda, number=1))
+    # my_object.query(query)
 
     # Tear Down
     my_object.drop_database()
