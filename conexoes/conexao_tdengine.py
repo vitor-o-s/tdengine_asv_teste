@@ -3,7 +3,7 @@ import os
 import taos
 
 from utils.utils import get_balanced_sets
-# import timeit 
+import timeit 
 
 database_name = "teste"
 stable_name = "phasor"
@@ -114,9 +114,9 @@ class TDengine():
         WHERE ts BETWEEN '{start_time}' AND '{end_time}'
         """
         result: taos.TaosResult = self.conn.query(query)
-        rows = result.fetch_all_into_dict()
-        for row in rows:
-            print('ROW:', row)
+        # rows = result.fetch_all_into_dict()
+        #for row in rows:
+        #    print('ROW:', row)
 
     def exact_query(self, table_name: str, timestamp: str):
         """
@@ -128,9 +128,9 @@ class TDengine():
         WHERE ts = '{timestamp}'
         """
         result: taos.TaosResult = self.conn.query(query)
-        rows = result.fetch_all_into_dict()
-        for row in rows:
-            print('ROW:', row)
+        # rows = result.fetch_all_into_dict()
+        #for row in rows:
+        #    print('ROW:', row)
 
     def aggregation_query(self, table_name: str, aggregation_function: str, column_name: str):
         """
@@ -141,9 +141,9 @@ class TDengine():
         FROM {table_name}
         """
         result: taos.TaosResult = self.conn.query(query)
-        rows = result.fetch_all_into_dict()
-        for row in rows:
-            print('ROW:', row)
+        #rows = result.fetch_all_into_dict()
+        #for row in rows:
+        #    print('ROW:', row)
 
     @staticmethod
     def write_to_table(self, conn, table, tags, lines_set):
@@ -179,7 +179,6 @@ class TDengine():
                 future.result()
 
 
-
 def setup():
     my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
     my_object.create_stable()
@@ -197,22 +196,35 @@ if __name__ == "__main__":
    
     my_object = setup()
     # Batch Tests
-    my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/1_loc.csv'])
-    my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
-    # copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
-    # print("--- %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
+    # my_object.copy_files([tables[0]['name']], [BASE_DIR + '1klines/1_loc.csv'])
+    # my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
+    copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
+    print("---COPY time: %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
 
     # Write Parallel Lines 
-    my_object.write_balanced_sets_to_table_parallel()
+    # my_object.write_balanced_sets_to_table_parallel()
 
     # Queries Tests
     # The 1k lines files starts in '2012-01-03 01:00:00.000'
     # and end in '2012-01-03 01:00:33.300'
     # For all the test the interval must be here (?)
-    my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
-    my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
-    my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
-    
+    interval_query_lambda = lambda: my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
+    print("---Interval query time: %s seconds ---" % timeit.timeit(interval_query_lambda, number=1))
+
+    exact_query_lambda = lambda: my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
+    print("---Exact query time: %s seconds ---" % timeit.timeit(exact_query_lambda, number=1))
+
+    agg_query_lambda = lambda: my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
+    print("---Interval query time: %s seconds ---" % timeit.timeit(agg_query_lambda, number=1))
+
+    '''
+    • Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
+    • Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
+    • Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'
+    e '2012/01/03 01:02:24.833'?
+    • Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e
+    '2012/01/03 01:02:24.833'
+    '''
     query = '''
     SELECT *
     FROM city01
