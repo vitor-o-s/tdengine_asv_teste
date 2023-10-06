@@ -2,8 +2,11 @@ import pandas as pd
 
 def transform_dataset(path: str):
     full_dataset = pd.read_csv(path + ".csv")
-    # full_dataset["Timestamp"] = pd.to_datetime(full_dataset["Timestamp"], format='%Y/%m/%d %H:%M:%S.%f')
-    
+    full_dataset["Timestamp"] = full_dataset["Timestamp"].str.replace('/', '-')
+    # Ensure all timestamps have the microsecond part
+    # full_dataset["Timestamp"] = full_dataset["Timestamp"].apply(lambda x: x if x.count('.') == 1 else x + '.000000')
+    full_dataset["Timestamp"] = pd.to_datetime(full_dataset["Timestamp"], format='%Y-%m-%d %H:%M:%S.%f')
+
     # Define the locations and corresponding columns
     locations = [
         ([0, 1, 2, 13], '1'),
@@ -20,12 +23,13 @@ def transform_dataset(path: str):
     # Loop through each location, extract relevant columns, add location column, and append to list
     for loc_cols, loc_name in locations:
         loc_data = full_dataset.iloc[:, loc_cols].copy()
+        loc_data.columns = ['Timestamp', 'Magnitude', 'Angle', 'Frequency']
         loc_data['Location'] = loc_name
         transformed_datasets.append(loc_data)
     
     # Concatenate all datasets and sort by Timestamp
     final_dataset = pd.concat(transformed_datasets, ignore_index=True)
-    final_dataset = final_dataset.sort_values(by='Timestamp')
+    final_dataset = final_dataset.sort_values(by=['Timestamp', 'Location'])
     
     # Save the final dataset
     final_dataset.to_csv(path + '/final_dataset.csv', index=False, header=True)

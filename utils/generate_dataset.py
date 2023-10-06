@@ -27,13 +27,13 @@ pmu_copy = pd.concat(list_concat, ignore_index=True)
 one_million_lines = pmu_copy.iloc[0:1000000,:]
 last_index = pmu_original.last_valid_index()
 for i in range(max_range):
-	pmu_copy.at[i+last_index, 'Timestamp'] =  timestamp_list[i]
+	pmu_copy.at[i+last_index, 'Timestamp'] =  timestamp_list[i].strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 # print("Index 1M dataset",one_million_lines.last_valid_index())
 # print(one_million_lines['Timestamp'].iloc[-1])
 five_hundred_lines = one_million_lines.iloc[0:500000,:]
 six_hundred_lines = one_million_lines.iloc[0:648000,:]
 
-
+# print('Save')
 # Save new datasets 
 one_thousand_lines.to_csv("data/1klines.csv",index=False)
 five_thousand_lines.to_csv("data/5klines.csv",index=False)
