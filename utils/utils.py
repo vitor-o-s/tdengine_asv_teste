@@ -1,4 +1,6 @@
 import random
+import csv
+from datetime import datetime
 
 def get_balanced_sets(number: int, path: str) -> list:
     """
@@ -30,3 +32,25 @@ def get_balanced_sets(number: int, path: str) -> list:
             lines.remove(line)
     
     return sets_list
+
+def loading_data(file_path):
+    data = []
+    with open(file_path, mode='r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        
+        for line in reader:
+            try:
+                converted_row = (
+                    datetime.strptime(line[0], '%Y-%m-%d %H:%M:%S.%f'),
+                    float(line[1]),
+                    float(line[2]),
+                    float(line[3]),
+                    int(line[4])
+                )
+                # 2012-01-03 01:00:00.000, 78807.3672, 9.3185, 60.0218, 1
+                data.append(tuple(converted_row))
+            except ValueError as e:
+                print(f"Skipping row due to error: {e}")
+                print("Problematic row:", line)
+                
+    return data
