@@ -1,5 +1,6 @@
 import concurrent.futures
 import os
+import psutil
 import taos
 
 from utils.utils import get_balanced_sets
@@ -19,6 +20,17 @@ tables = [{"name": "city01", "tag": 1},
 BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
 ordered_tags_list = ["city01", "city02", "city03", "city04", "city05", "city06"]
 
+interval_query = """ SELECT * FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+exact_query = """ SELECT * FROM city01 WHERE ts = '2012-01-03 01:00:27.233' """
+avg_query = """ SELECT AVG(frequency) FROM city01 """
+mean_between_query = """ SELECT AVG(magnitude) FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+
+"""
+How to get table size:
+
+Hi Vitor you can get some idea by getting count(*) from the supertable and multiplying by the max possible row size in bytes. But we do have compression so you should look at the filesystem to see how much space is actually being taken up but you cannot get this at level of the supertable.
+You can see the data types and their byte sizes here: https://docs.tdengine.com/taos-sql/data-type/
+"""
 
 class TDengine():
     
@@ -78,9 +90,6 @@ class TDengine():
         file_query += ";"
         self.conn.execute(file_query)
 
-    def insert_row(self, table: str, value: str):
-        self.conn.execute("INSERT INTO "+ table +" VALUES ()"+ value +");")
-
     def close_conn(self):
         print('Close connection!')
         self.conn.close()
@@ -94,48 +103,16 @@ class TDengine():
         result: taos.TaosResult = self.conn.query(query)
         return result
 
-    def interval_query(self, table_name: str, start_time: str, end_time: str):
-        """
-        Query data from a table within a specified time interval.
-        """
-        query = f"""
-        SELECT *
-        FROM {table_name}
-        WHERE ts BETWEEN '{start_time}' AND '{end_time}'
-        """
-        result: taos.TaosResult = self.conn.query(query)
-
-    def exact_query(self, table_name: str, timestamp: str):
-        """
-        Query data from a table for a specific timestamp.
-        """
-        query = f"""
-        SELECT *
-        FROM {table_name}
-        WHERE ts = '{timestamp}'
-        """
-        result: taos.TaosResult = self.conn.query(query)
-
-    def aggregation_query(self, table_name: str, aggregation_function: str, column_name: str):
-        """
-        Perform an aggregation operation on the data.
-        """
-        query = f"""
-        SELECT {aggregation_function}({column_name})
-        FROM {table_name}
-        """
-        result: taos.TaosResult = self.conn.query(query)
-
     @staticmethod
     def write_to_table(self, conn, table, tags, lines_set):
         cursor = conn.cursor()
-        for line in list(lines_set):
-            processed_line = f"INSERT INTO {table} USING {self.stable_name} TAGS({tags}) VALUES {line};"
+        for line in lines_set:
+            processed_line = f"INSERT INTO {table} USING {self.stable_name} TAGS({tags}) VALUES ({line});"
             cursor.execute(processed_line)
         cursor.close()
         conn.close()
     
-    def write_balanced_sets_to_table_parallel(self, table: str, number: int, path: str, host: str = "localhost", port: int = 6030, user: str = "root", password: str = "taosdata"):
+    def write_balanced_sets_to_table_parallel(self, table: str, number: int, path: str, tag: int, host: str = "localhost", port: int = 6030, user: str = "root", password: str = "taosdata"):
         """
         Writes balanced sets of lines from a file to a table using multiple connections in parallel.
 
@@ -153,7 +130,8 @@ class TDengine():
             futures = []
             for lines_set in sets_list:
                 conn = taos.connect(host=host, port=port, user=user, password=password)
-                futures.append(executor.submit(self.write_to_table, self, conn, table, tags, lines_set))
+                conn.select_db(self.database)
+                futures.append(executor.submit(self.write_to_table, self, conn, table, tag, lines_set))
             
             # Wait for all threads to complete
             for future in concurrent.futures.as_completed(futures):
@@ -172,44 +150,63 @@ def get_file_paths(base_dir, dir_name):
     file_paths = [os.path.join(dir_path, file_name) for file_name in file_names]
     return sorted(file_paths)
 
+def measure_memory_usage(func):
+    pass
 
 if __name__ == "__main__":
    
     my_object = setup()
+    time_results = []
     # Batch Tests
-    copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, '1klines'))
-    print("---COPY time: %s seconds ---" % timeit.timeit(copy_files_lambda2, number=1))
+    for dir in os.listdir(BASE_DIR):
+        if os.path.isdir(BASE_DIR + dir):
+            time_results.append(dir)
+            copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, dir))
+            time_results.append(timeit.timeit(copy_files_lambda2, number=1))
+            # my_object.query('DELETE FROM city01') # Need for parallel test
 
-    # Write Parallel Lines 
-    # my_object.write_balanced_sets_to_table_parallel()
+            # Write Parallel Lines
+            # if dir == '648klines':
+            #    for i in [1, 2, 4, 8, 16, 32]:
+            #        parallel_lambda = lambda: my_object.write_balanced_sets_to_table_parallel(table='city01', number=i, path=get_file_paths(BASE_DIR, dir)[0], tag=1)
+            #        time_results.append(timeit.timeit(parallel_lambda, number=1))
+            #        my_object.query('DELETE FROM city01') # Need for parallel test
 
-    # Queries Tests
+            # Resultado do paralelo não está certo, a função chamada possui mas responsabilidades do que deveria
+            # Queries Tests
 
-    '''
-    The 1k lines files starts in '2012-01-03 01:00:00.000'
-    and end in '2012-01-03 01:00:33.300'
-    For all the test the interval must be here (?)
-    '''
-
-    # Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e '2012/01/03 01:02:24.833'
-    interval_query_lambda = lambda: my_object.interval_query(tables[0]['name'], '2012-01-03 01:00:26.200', '2012-01-03 01:00:29.700')
-    print("---Interval query time: %s seconds ---" % timeit.timeit(interval_query_lambda, number=1))
-    # Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
-    exact_query_lambda = lambda: my_object.exact_query(tables[0]['name'], '2012-01-03 01:00:27.233')
-    print("---Exact query time: %s seconds ---" % timeit.timeit(exact_query_lambda, number=1))
-    # Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
-    agg_query_lambda = lambda: my_object.aggregation_query(tables[0]['name'], 'AVG', 'frequency')
-    print("---Interval query time: %s seconds ---" % timeit.timeit(agg_query_lambda, number=1))
-    # Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'e '2012/01/03 01:02:24.833'?
-    mean_between_query = '''
-    SELECT AVG(magnitude)
-    FROM city01
-    WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833'
-    '''
-    agg_between_lambda = lambda: my_object.query(mean_between_query)
-    print("---Interval agregation query time: %s seconds ---" % timeit.timeit(agg_between_lambda, number=1))
-    # my_object.query(query)
-
+            '''
+            The 1k lines files starts in '2012-01-03 01:00:00.000'
+            and end in '2012-01-03 01:00:33.300'
+            For all the test the interval must be here (?)
+            '''
+            # Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e '2012/01/03 01:02:24.833'
+            interval_query_lambda = lambda: my_object.query(interval_query)
+            time_results.append(timeit.timeit(interval_query_lambda, number=1))
+            
+            # Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
+            exact_query_lambda = lambda: my_object.query(exact_query)
+            time_results.append(timeit.timeit(exact_query_lambda, number=1))
+            
+            # Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
+            agg_query_lambda = lambda: my_object.query(avg_query)
+            time_results.append(timeit.timeit(agg_query_lambda, number=1))
+            
+            # Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'e '2012/01/03 01:02:24.833'?
+            agg_between_lambda = lambda: my_object.query(mean_between_query)
+            time_results.append(timeit.timeit(agg_between_lambda, number=1))
+            
+            # my_object.query(query)
     # Tear Down
     my_object.drop_database()
     my_object.close_conn()
+
+            # print("---COPY               time: %s seconds ---" % time_results[0])
+            # print("---Parallel           time: %s seconds ---" % time_results[1])
+            # print("---Interval query     time: %s seconds ---" % time_results[2])
+            # print("---Exact query        time: %s seconds ---" % time_results[3])
+            # print("---Interval query     time: %s seconds ---" % time_results[4])
+            # print("---Interval avg query time: %s seconds ---" % time_results[5])
+    print(time_results)
+
+# UTILIZAR ARQUIVO DE 64800 PRO TESTE DE THREAD
