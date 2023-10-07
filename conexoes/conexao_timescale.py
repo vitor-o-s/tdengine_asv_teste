@@ -1,16 +1,19 @@
 import psycopg2
 import timeit
+import time
 import psutil
 import os
+import concurrent.futures
 from pgcopy import CopyManager
-from utils.utils import get_balanced_sets, loading_data
+from utils.utils import load_csv_data, loading_data
 
 BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
 CONNECTION = "postgres://postgres:password@127.0.0.1:5432/postgres"
 SCHEMA = ("ts", "magnitude", "angle", "frequency", "location")
 
 query_create_phasor_hypertable = """
-                                CREATE TABLE phasor (
+                                DROP TABLE IF EXISTS phasor;
+                                CREATE TABLE IF NOT EXISTS phasor (
                                     ts TIMESTAMP NOT NULL,
                                     magnitude FLOAT,
                                     angle FLOAT, 
@@ -18,11 +21,6 @@ query_create_phasor_hypertable = """
                                     location INT
                                 );
                                 SELECT create_hypertable('phasor', 'ts');
-                                --ALTER TABLE phasor SET (
-                                --    timescaledb.compress,
-                                --    timescaledb.compress_segmentby = 'location'
-                                --);
-                                --SELECT add_compression_policy('phasor', INTERVAL '7 days');
                                 """
 query_hypertable_size = """
                         SELECT 
@@ -31,6 +29,16 @@ query_hypertable_size = """
                         FROM 
                             timescaledb_information.hypertables;
                         """
+
+query_compression_table = """
+                        ALTER TABLE phasor SET (
+                            timescaledb.compress,
+                            timescaledb.compress_segmentby = 'location'
+                        );
+                        """
+query_compression_policy = "SELECT add_compression_policy('phasor', INTERVAL '7 days');"
+
+query_delete = "DELETE FROM phasor"
 
 query_by_interval = "SELECT * FROM phasor WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833'"
 query_exact_time = "SELECT * FROM phasor WHERE ts = '2012-01-03 01:00:27.233'"
@@ -56,6 +64,32 @@ def measure_peak_memory_usage(func, *args, **kwargs):
     memory_usage = (peak_memory - baseline_memory) / (1024 * 1024)
     return memory_usage
 
+def write_line(conn, queries):
+    cursor = conn.cursor()
+    for query in queries:
+        cursor.execute(query)
+    cursor.close()
+
+def create_slices(data, num_slices):
+    """Divide data into num_slices slices."""
+    avg = len(data) // num_slices
+    slices = [data[i * avg: (i + 1) * avg] for i in range(num_slices)]
+    slices[num_slices-1] += data[num_slices * avg:]  # Add any remaining elements to the last slice
+    return slices
+
+def parallel_insert(data, i):
+    formated_lines = [f"INSERT INTO phasor(ts, magnitude, angle, frequency, location) VALUES {x};" for x in data]
+    slices = create_slices(formated_lines, i)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=i) as executor:
+        futures = [executor.submit(write_line, psycopg2.connect(CONNECTION), data_slice) for data_slice in slices]            
+        # Wait for all threads to complete
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+    with psycopg2.connect(CONNECTION) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query_delete)
+        cursor.close()
+
 if __name__ == "__main__":
     with psycopg2.connect(CONNECTION) as conn:
         # Setup
@@ -63,13 +97,14 @@ if __name__ == "__main__":
         cursor = conn.cursor()
         cursor.execute(query_create_phasor_hypertable)
         mgr = CopyManager(conn, "phasor", SCHEMA)
+        # Aqui será usado for para passar os caminhos de arquivos
         data = loading_data(file_path)
-
-        # Parallel test
 
         # Batch test
         lambda_copy = lambda: mgr.copy(data)
         results.append({"tempo_copia":timeit.timeit(lambda_copy, number=1)})
+        # cursor.execute(query_compression_table)
+        # cursor.execute(query_compression_policy)
 
         # Query
         lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
@@ -86,11 +121,30 @@ if __name__ == "__main__":
         results.append({"tempo_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
         # Compression Test
-        cursor.execute(query_hypertable_size)
-        for row in cursor.fetchall():
-            print(row)        
+        # time.sleep(10)
+        # cursor.execute(query_hypertable_size)
+        # for row in cursor.fetchall():
+        #    print(row)        
         
         # End of tests
+        cursor.execute(query_delete)
+        cursor.close()
+
+    # Parallel Ingestion
+    # The same datasize from the original paper
+    print('Iniciando teste de paralelismo')
+    file_path = BASE_DIR + '10klines/final_dataset.csv'
+    data = load_csv_data(file_path)
+    n_threads = [1, 2, 4] # , 8, 16, 20, 32] # Discuss '20' and remove comment on final tests
+    for i in n_threads:
+        print("N. THREADS:", i)
+        elapsed_time = timeit.timeit(lambda: parallel_insert(data, i), number=1)
+        results.append({f"tempo_{i}_threads": elapsed_time})
+        print(f"Time taken with {i} threads: {elapsed_time:.2f} seconds")
+
+    # Teardown
+    with psycopg2.connect(CONNECTION) as conn:
+        cursor = conn.cursor()
         teardown(cursor=cursor)
         cursor.close()
     print(results)
