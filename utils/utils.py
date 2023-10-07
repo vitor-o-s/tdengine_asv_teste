@@ -33,7 +33,16 @@ def get_balanced_sets(number: int, path: str) -> list:
     
     return sets_list
 
-def loading_data(file_path):
+def loading_data(file_path) -> list[tuple]:
+    """
+    Returns a list of all sets.
+    
+    Parameters:
+    - file_path (str): The path to the file.
+    
+    Returns:
+    - list: A list of sets, each containing lines from the file.
+    """
     data = []
     with open(file_path, mode='r', newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
@@ -53,4 +62,18 @@ def loading_data(file_path):
                 print(f"Skipping row due to error: {e}")
                 print("Problematic row:", line)
                 
+    return data
+
+def load_csv_data(file_path):
+    """
+    Load data from a CSV file.
+
+    :param file_path: str, path to the CSV file
+    :return: list of tuples, each tuple represents a row of data
+    """
+    data = []
+    with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            data.append(tuple(row))
     return data
