@@ -1,8 +1,6 @@
 import psycopg2
 import timeit
 import time
-import psutil
-import os
 import concurrent.futures
 from pgcopy import CopyManager
 from utils.utils import load_csv_data, loading_data
@@ -54,16 +52,6 @@ def teardown(cursor):
     cursor.execute("DROP TABLE phasor;")
     print("Done! Clossing cursor and ending application!")
 
-def measure_peak_memory_usage(func, *args, **kwargs):
-    process = psutil.Process(os.getpid())
-    baseline_memory = process.memory_info().rss
-    func(*args, **kwargs)
-    peak_memory = process.memory_info().rss
-    print('Peak:', peak_memory)
-    print('Base:', baseline_memory)
-    memory_usage = (peak_memory - baseline_memory) / (1024 * 1024)
-    return memory_usage
-
 def write_line(conn, queries):
     cursor = conn.cursor()
     for query in queries:
@@ -109,7 +97,6 @@ if __name__ == "__main__":
         # Query
         lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
         results.append({"tempo_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
-        results.append({"pico_memoria_query_by_interval":measure_peak_memory_usage(lambda_query_by_interval)})
 
         lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
         results.append({"tempo_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
@@ -135,7 +122,7 @@ if __name__ == "__main__":
     print('Iniciando teste de paralelismo')
     file_path = BASE_DIR + '10klines/final_dataset.csv'
     data = load_csv_data(file_path)
-    n_threads = [1, 2, 4] # , 8, 16, 20, 32] # Discuss '20' and remove comment on final tests
+    n_threads = [1, 2, 4] # , 8, 16, 32]
     for i in n_threads:
         print("N. THREADS:", i)
         elapsed_time = timeit.timeit(lambda: parallel_insert(data, i), number=1)
