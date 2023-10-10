@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # Parallel Ingestion
     # The same datasize from the original paper
     print('Iniciando teste de paralelismo')
-    file_path = BASE_DIR + '10klines/final_dataset.csv'
+    file_path = BASE_DIR + '10klines/final_dataset.csv' #648Klines
     data = load_csv_data(file_path)
     n_threads = [1, 2, 4] # , 8, 16, 32]
     for i in n_threads:
