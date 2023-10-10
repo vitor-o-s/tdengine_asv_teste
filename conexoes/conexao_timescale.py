@@ -86,35 +86,37 @@ if __name__ == "__main__":
         cursor.execute(query_create_phasor_hypertable)
         mgr = CopyManager(conn, "phasor", SCHEMA)
         # Aqui será usado for para passar os caminhos de arquivos
-        data = loading_data(file_path)
+        files = ["1klines", "5klines", "10klines", "50klines"]# , "100klines", "500klines", "648klines", "1Mlines"]
+        for file in files:
+            data = loading_data(BASE_DIR + file + "/final_dataset.csv")
 
-        # Batch test
-        lambda_copy = lambda: mgr.copy(data)
-        results.append({"tempo_copia":timeit.timeit(lambda_copy, number=1)})
-        # cursor.execute(query_compression_table)
-        # cursor.execute(query_compression_policy)
+            # Batch test
+            lambda_copy = lambda: mgr.copy(data)
+            results.append({f"tempo_{file}_copia":timeit.timeit(lambda_copy, number=1)})
+            # cursor.execute(query_compression_table)
+            # cursor.execute(query_compression_policy)
 
-        # Query
-        lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
-        results.append({"tempo_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
+            # Query
+            lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
+            results.append({f"tempo_{file}_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
 
-        lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
-        results.append({"tempo_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
+            lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
+            results.append({f"tempo_{file}_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
 
-        lambda_query_with_avg = lambda: cursor.execute(query_with_avg)
-        results.append({"tempo_query_with_avg":timeit.timeit(lambda_query_with_avg, number=1)})
+            lambda_query_with_avg = lambda: cursor.execute(query_with_avg)
+            results.append({f"tempo_{file}_query_with_avg":timeit.timeit(lambda_query_with_avg, number=1)})
 
-        lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
-        results.append({"tempo_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
+            lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
+            results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
-        # Compression Test
-        # time.sleep(10)
-        # cursor.execute(query_hypertable_size)
-        # for row in cursor.fetchall():
-        #    print(row)        
-        
-        # End of tests
-        cursor.execute(query_delete)
+            # Compression Test
+            # time.sleep(10)
+            # cursor.execute(query_hypertable_size)
+            # for row in cursor.fetchall():
+            #    print(row)        
+            
+            # End of tests
+            cursor.execute(query_delete)
         cursor.close()
 
     # Parallel Ingestion
