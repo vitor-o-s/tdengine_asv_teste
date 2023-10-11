@@ -1,9 +1,8 @@
 import concurrent.futures
 import os
-import psutil
 import taos
 
-from utils.utils import get_balanced_sets
+from utils.utils import get_balanced_sets, load_csv_data, loading_data
 import timeit 
 
 database_name = "teste"
@@ -20,193 +19,119 @@ tables = [{"name": "city01", "tag": 1},
 BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
 ordered_tags_list = ["city01", "city02", "city03", "city04", "city05", "city06"]
 
-interval_query = """ SELECT * FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
-exact_query = """ SELECT * FROM city01 WHERE ts = '2012-01-03 01:00:27.233' """
-avg_query = """ SELECT AVG(frequency) FROM city01 """
-mean_between_query = """ SELECT AVG(magnitude) FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+create_stable_query = f" CREATE STABLE IF NOT EXISTS {stable_name} {schema} TAGS({tags}); "
 
-"""
-How to get table size:
+create_table_query = """ CREATE TABLE IF NOT EXISTS city01 USING phasor TAGS (1)
+                    IF NOT EXISTS city02 USING phasor TAGS (2)
+                    IF NOT EXISTS city03 USING phasor TAGS (3)
+                    IF NOT EXISTS city04 USING phasor TAGS (4)
+                    IF NOT EXISTS city05 USING phasor TAGS (5)
+                    IF NOT EXISTS city06 USING phasor TAGS (6);
+                    """
 
-Hi Vitor you can get some idea by getting count(*) from the supertable and multiplying by the max possible row size in bytes. But we do have compression so you should look at the filesystem to see how much space is actually being taken up but you cannot get this at level of the supertable.
-You can see the data types and their byte sizes here: https://docs.tdengine.com/taos-sql/data-type/
-"""
+drop_db_query = "DROP DATABASE IF EXISTS " + database_name
 
-class TDengine():
-    
-    def __init__(
-            self,
-            database: str,
-            retention_time: str,
-            stable_name: str, 
-            schema: str, 
-            tags: str,
-            tables: list,
-            host: str = "localhost",
-            port: int = 6030,
-            user: str = "root",
-            password: str = "taosdata", 
-            **kwargs
-            ) -> None:
-        self.database = database
-        self.retention_time = retention_time
-        self.stable_name = stable_name
-        self.schema = schema
-        self.tags = tags
-        self.tables = tables
-        self.conn = taos.connect(host=host,
-                                 port=port,
-                                 user=user,
-                                 password=password)
-    
-        print('client info:', self.conn.client_info)
-        print('server info:', self.conn.server_info)
-        self.conn.execute("CREATE DATABASE IF NOT EXISTS "+ self.database+" KEEP "+ self.retention_time)
-        self.conn.select_db(self.database)
-    
-    def create_stable(self):
-        create_stable_query = f"""
-        CREATE STABLE IF NOT EXISTS {self.stable_name}
-        {self.schema} 
-        TAGS({self.tags});
-        """
-        self.conn.execute(create_stable_query)
-  
-    def create_tables(self):
-        for item in self.tables:
-            create_table_query = f"""
-                CREATE TABLE IF NOT EXISTS {item['name']} 
-                USING {self.stable_name} 
-                TAGS ({str(item['tag'])});
-                """
-            self.conn.execute(create_table_query)
-    
-    def copy_files(self, tables: list[str], paths: list[str]):
-        """
-        """
-        file_query = "INSERT INTO \n"
-        for table, path in zip(tables, paths):
-            file_query += table +" FILE '"+ path +"'\n"
-        file_query += ";"
-        self.conn.execute(file_query)
+query_delete = "DELETE FROM phasor"
 
-    def close_conn(self):
-        print('Close connection!')
-        self.conn.close()
-    
-    def drop_database(self):
-        drop_db_query = "DROP DATABASE IF EXISTS "+ self.database
-        print("Excuting the following query:\n",drop_db_query)
-        self.conn.execute(drop_db_query)
+query_by_interval = """ SELECT * FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+query_exact_time = """ SELECT * FROM city01 WHERE ts = '2012-01-03 01:00:27.233' """
+query_with_avg = """ SELECT AVG(frequency) FROM city01 """
+query_with_avg_by_interval = """ SELECT AVG(magnitude) FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
 
-    def query(self, query: str):
-        result: taos.TaosResult = self.conn.query(query)
-        return result
+def copy_files(tables: list[str], paths: list[str]):
+    copy_query = "INSERT INTO \n"
+    for table, path in zip(tables, paths):
+        copy_query += table +" FILE '"+ path +"'\n"
+    copy_query += ";"
+    return copy_query
 
-    @staticmethod
-    def write_to_table(self, conn, table, tags, lines_set):
-        cursor = conn.cursor()
-        for line in lines_set:
-            processed_line = f"INSERT INTO {table} USING {self.stable_name} TAGS({tags}) VALUES ({line});"
-            cursor.execute(processed_line)
-        cursor.close()
-        conn.close()
-    
-    def write_balanced_sets_to_table_parallel(self, table: str, number: int, path: str, tag: int, host: str = "localhost", port: int = 6030, user: str = "root", password: str = "taosdata"):
-        """
-        Writes balanced sets of lines from a file to a table using multiple connections in parallel.
+def create_slices(data, num_slices):
+    """Divide data into num_slices slices."""
+    avg = len(data) // num_slices
+    slices = [data[i * avg: (i + 1) * avg] for i in range(num_slices)]
+    slices[num_slices-1] += data[num_slices * avg:]  # Add any remaining elements to the last slice
+    return slices
 
-        Parameters:
-        - table (str): The name of the table to write to.
-        - number (int): The number of sets (and connections) to use.
-        - path (str): The path to the file.
-        - host, port, user, password: Connection parameters for the database.
-        """
-        # Get the balanced sets of lines
-        sets_list = get_balanced_sets(number, path)
-        
-        # Use ThreadPoolExecutor to parallelize the writing process
-        with concurrent.futures.ThreadPoolExecutor(max_workers=number) as executor:
-            futures = []
-            for lines_set in sets_list:
-                conn = taos.connect(host=host, port=port, user=user, password=password)
-                conn.select_db(self.database)
-                futures.append(executor.submit(self.write_to_table, self, conn, table, tag, lines_set))
-            
-            # Wait for all threads to complete
-            for future in concurrent.futures.as_completed(futures):
-                future.result()
+def write_line(conn, queries):
+    cursor = conn.cursor()
+    for query in queries:
+        cursor.execute(query)
+    cursor.close()
+
+def parallel_insert(slices, i):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=i) as executor:
+        conn = taos.connect(host="localhost", port=6030, user="root", password="taosdata", database=database_name)
+        futures = [executor.submit(write_line, conn, data_slice) for data_slice in slices]            
+        # Wait for all threads to complete
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+    conn = taos.connect(host="localhost", port=6030, user="root", password="taosdata", database=database_name)
+    cursor = conn.cursor()
+    cursor.execute(query_delete)
+    cursor.close()
 
 
-def setup():
-    my_object = TDengine(database_name, retention_time,stable_name, schema, tags, tables)
-    my_object.create_stable()
-    my_object.create_tables()
-    return my_object
-
-def get_file_paths(base_dir, dir_name):
-    dir_path = os.path.join(base_dir, dir_name)
-    file_names = os.listdir(dir_path)
-    file_paths = [os.path.join(dir_path, file_name) for file_name in file_names]
-    return sorted(file_paths)
-
-def measure_memory_usage(func):
-    pass
 
 if __name__ == "__main__":
-   
-    my_object = setup()
-    time_results = []
-    # Batch Tests
-    for dir in os.listdir(BASE_DIR):
-        if os.path.isdir(BASE_DIR + dir):
-            time_results.append(dir)
-            copy_files_lambda2 = lambda: my_object.copy_files(ordered_tags_list, get_file_paths(BASE_DIR, dir))
-            time_results.append(timeit.timeit(copy_files_lambda2, number=1))
-            # my_object.query('DELETE FROM city01') # Need for parallel test
+    # Setup        
+    results = []
+    conn = taos.connect(host="localhost", port=6030, user="root", password="taosdata")
+    cursor = conn.cursor()
+    print('client info:', conn.client_info)
+    print('server info:', conn.server_info)
+    conn.execute("CREATE DATABASE IF NOT EXISTS "+ database_name +" KEEP "+ retention_time)
+    conn.select_db(database_name)
+    conn.execute(create_stable_query)
+    conn.execute(create_table_query)
+    
+    files = ["1klines", "5klines", "10klines", "50klines"]# , "100klines", "500klines", "648klines", "1Mlines"]
+    for file in files:
+        # Batch test
+        paths = [BASE_DIR + file + '/'+ str(i) + '_loc.csv' for i in range(1,7)]
+        copy_query = copy_files(ordered_tags_list, paths)
+        lambda_copy = lambda: conn.execute(copy_query)
+        results.append({f"tempo_{file}_copia":timeit.timeit(lambda_copy, number=1)})
 
-            # Write Parallel Lines
-            # if dir == '648klines':
-            #    for i in [1, 2, 4, 8, 16, 32]:
-            #        parallel_lambda = lambda: my_object.write_balanced_sets_to_table_parallel(table='city01', number=i, path=get_file_paths(BASE_DIR, dir)[0], tag=1)
-            #        time_results.append(timeit.timeit(parallel_lambda, number=1))
-            #        my_object.query('DELETE FROM city01') # Need for parallel test
+        # Query
+        lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
+        results.append({f"tempo_{file}_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
 
-            # Resultado do paralelo não está certo, a função chamada possui mas responsabilidades do que deveria
-            # Queries Tests
+        lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
+        results.append({f"tempo_{file}_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
 
-            '''
-            The 1k lines files starts in '2012-01-03 01:00:00.000'
-            and end in '2012-01-03 01:00:33.300'
-            For all the test the interval must be here (?)
-            '''
-            # Quais são os registros existentes no período entre '2012/01/03 01:00:24.000' e '2012/01/03 01:02:24.833'
-            interval_query_lambda = lambda: my_object.query(interval_query)
-            time_results.append(timeit.timeit(interval_query_lambda, number=1))
-            
-            # Qual é o valor da magnitude no instante '2012/01/03 01:02:24.833'?
-            exact_query_lambda = lambda: my_object.query(exact_query)
-            time_results.append(timeit.timeit(exact_query_lambda, number=1))
-            
-            # Qual é o valor médio do ângulo ao longo de todo o conjunto de dados?
-            agg_query_lambda = lambda: my_object.query(avg_query)
-            time_results.append(timeit.timeit(agg_query_lambda, number=1))
-            
-            # Qual é o valor médio do ângulo no intervalo de tempo entre '2012/01/03 01:00:24.000'e '2012/01/03 01:02:24.833'?
-            agg_between_lambda = lambda: my_object.query(mean_between_query)
-            time_results.append(timeit.timeit(agg_between_lambda, number=1))
-            
-            # my_object.query(query)
-    # Tear Down
-    my_object.drop_database()
-    my_object.close_conn()
+        lambda_query_with_avg = lambda: cursor.execute(query_with_avg)
+        results.append({f"tempo_{file}_query_with_avg":timeit.timeit(lambda_query_with_avg, number=1)})
 
-            # print("---COPY               time: %s seconds ---" % time_results[0])
-            # print("---Parallel           time: %s seconds ---" % time_results[1])
-            # print("---Interval query     time: %s seconds ---" % time_results[2])
-            # print("---Exact query        time: %s seconds ---" % time_results[3])
-            # print("---Interval query     time: %s seconds ---" % time_results[4])
-            # print("---Interval avg query time: %s seconds ---" % time_results[5])
-    print(time_results)
+        lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
+        results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
-# UTILIZAR ARQUIVO DE 64800 PRO TESTE DE THREAD
+        # Clean subtables
+        cursor.execute(query_delete)
+
+    # Parallel Ingestion
+    # The same datasize from the original paper
+    print('Iniciando teste de paralelismo')
+    # path = BASE_DIR + '10klines/' # final_dataset.csv' #648Klines
+    lines = []
+    for i in range(1,7):
+        data = load_csv_data(BASE_DIR + '10klines/' + f'{i}_loc.csv') #648Klines
+        # print(data[0])
+        data = [(row[0].replace("'", ""), *row[1:]) for row in data]
+        formated_lines = [f"INSERT INTO city0{str(i)} USING phasor TAGS({str(i)}) VALUES {x};" for x in data]
+        lines += formated_lines
+    n_threads = [1, 2, 4] # , 8, 16, 32]
+    for i in n_threads:
+        print("N. THREADS:", i)        
+        slices = create_slices(lines, i)
+        elapsed_time = timeit.timeit(lambda: parallel_insert(slices, i), number=1)
+        results.append({f"tempo_{i}_threads": elapsed_time})
+        print(f"Time taken with {i} threads: {elapsed_time:.2f} seconds")
+
+    # Teardown  
+    print("Excuting the following query:\n",drop_db_query)
+    conn.execute(drop_db_query)
+    print('Close connection!')
+    cursor.close()
+    conn.close()
+
+    print(results)
