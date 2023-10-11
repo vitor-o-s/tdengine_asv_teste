@@ -7,12 +7,12 @@ wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/d
 wget https://raw.githubusercontent.com/apache/druid/27.0.0/distribution/docker/environment
 
 echo "Setting Up enviroment"
-source /home/dell/tcc_package/tdengine_asv_teste/.venv/bin/activate
+source .venv/bin/activate
 pip install -r requirements.txt
 
 # Start TDengine
 echo "Starting TD Container"
-sudo docker run -d --name tdengine -p 6030:6030 -p 6041:6041 -p 6043-6049:6043-6049 -p 6043-6049:6043-6049/udp tdengine/tdengine
+sudo docker run -d --name tdengine -p 6030:6030 -p 6041:6041 -p 6043-6049:6043-6049 -p 6043-6049:6043-6049/udp tdengine/tdengine:3.0.5.0
 wait
 echo "TD is running"
 
@@ -28,7 +28,7 @@ echo "TDengine Stoped"
 
 # Start Timescale
 echo "Starting Timescale Container"
-sudo sudo docker run -d --name timescaledb -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb-ha:pg14-latest
+sudo sudo docker run -d --name timescaledb -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:2.11.2-pg14
 wait
 echo "Timescale is running"
 # Run Tests
