@@ -1,23 +1,21 @@
 from pydruid.db import connect
 import timeit
-import concurrent.futures
+# import concurrent.futures
 import json
 import requests
-import os
-from utils.utils import load_csv_data, loading_data  # Assuming these functions are defined in your utils
+import time
+# import os
+# from utils.utils import load_csv_data, loading_data  # Assuming these functions are defined in your utils
 
 BASE_DIR = "/home/dell/tcc_package/tdengine_asv_teste/data/"
 DRUID_BROKER_URL = 'druid://localhost:8082/druid/v2/sql/'
-SCHEMA = ("ts", "magnitude", "angle", "frequency", "location")
-
-# Druid does not support table creation or deletion via SQL in the same way as relational databases.
-# You might need to define your data schema and ingestion spec separately.
+# SCHEMA = ("ts", "magnitude", "angle", "frequency", "location")
 
 # Queries might need to be adapted based on your Druid data schema
-query_by_interval = "SELECT * FROM phasor WHERE __time BETWEEN TIMESTAMP '2012-01-03T01:00:24Z' AND TIMESTAMP '2012-01-03T01:02:24Z'"
-query_exact_time = "SELECT * FROM phasor WHERE __time = TIMESTAMP '2012-01-03T01:00:27Z'"
+query_by_interval = "SELECT * FROM phasor WHERE __time BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 02:00:24.000'"
+query_exact_time = "SELECT * FROM phasor WHERE __time = TIMESTAMP '2012-01-03 01:00:27.000'"
 query_with_avg = "SELECT AVG(frequency) FROM phasor"
-query_with_avg_by_interval = "SELECT AVG(magnitude) FROM phasor WHERE __time BETWEEN TIMESTAMP '2012-01-03T01:00:24Z' AND TIMESTAMP '2012-01-03T01:02:24Z'"
+query_with_avg_by_interval = "SELECT AVG(magnitude) FROM phasor WHERE __time BETWEEN TIMESTAMP '2012-01-03 01:00:24.000' AND '2012-01-03 02:00:24.000'"
 
 def submit_ingestion_task(ingestion_spec_json, file_path, max_num_concurrent_sub_tasks=None):
     # Update the file path in the ingestion spec
@@ -40,6 +38,7 @@ def submit_ingestion_task(ingestion_spec_json, file_path, max_num_concurrent_sub
     if response.status_code == 200:
         print("Ingestion task submitted successfully!")
         print("Task ID:", response.json()['task'])
+        return response.json()['task']
     else:
         print("Failed to submit ingestion task!")
         print("Status Code:", response.status_code)
@@ -50,7 +49,7 @@ if __name__ == "__main__":
     conn = connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http')
     cursor = conn.cursor()
     results = []
-    files = ["1klines", "5klines", "10klines", "50klines"]
+    files = ["1klines", "5klines"]# , "10klines", "50klines", "100klines", "500klines", "648klines", "1Mlines"]
     # Load the ingestion spec from the JSON file
     with open('/home/dell/tcc_package/tdengine_asv_teste/utils/ingestion_spec.json', 'r') as file:
         ingestion_spec = json.load(file)
@@ -64,41 +63,42 @@ if __name__ == "__main__":
         max_num_concurrent_sub_tasks = None  # Adjust as needed
         
         # Submit the ingestion task
-        results.append({f"tempo_{file}_copia":
-                        submit_ingestion_task(ingestion_spec, file, max_num_concurrent_sub_tasks)
-                        })
+        task_id = submit_ingestion_task(ingestion_spec, file, max_num_concurrent_sub_tasks)
+        
+        time.sleep(3)
+        response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
+        while response.json()['status']['status'] != 'SUCCESS':
+            time.sleep(3)
+            response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
+        results.append({f"tempo_{file}_copia": response.json()['status']['duration']})
 
 
         # Query
-        # lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
-        # results.append({f"tempo_{file}_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
+        cursor.execute(query_by_interval)
+        lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
+        results.append({f"tempo_{file}_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
 
-        # lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
-        # results.append({f"tempo_{file}_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
+        lambda_query_exact_time = lambda: cursor.execute(query_exact_time)
+        results.append({f"tempo_{file}_query_exact_time":timeit.timeit(lambda_query_exact_time, number=1)})
 
-        # lambda_query_with_avg = lambda: cursor.execute(query_with_avg)
-        # results.append({f"tempo_{file}_query_with_avg":timeit.timeit(lambda_query_with_avg, number=1)})
+        lambda_query_with_avg = lambda: cursor.execute(query_with_avg)
+        results.append({f"tempo_{file}_query_with_avg":timeit.timeit(lambda_query_with_avg, number=1)})
 
-        # lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
-        # results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
+        lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
+        results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
         # End of tests
-        # cursor.execute(query_delete)
-       
-
-# if __name__ == "__main__":
-    
-
+        # 2 requests, mark data as unused and after delete
+        # Wait until success
 
     # Parallel Querying
-    # print('Starting parallel query test')
-    # file_path = BASE_DIR + '10klines/final_dataset.csv'
-    # data = load_csv_data(file_path)
-    # n_threads = [1, 2, 4]
-    # for i in n_threads:
-    #    print("N. THREADS:", i)
-    #    elapsed_time = timeit.timeit(lambda: parallel_query(data, i), number=1)
-    #    results.append({f"tempo_{i}_threads": elapsed_time})
-    #    print(f"Time taken with {i} threads: {elapsed_time:.2f} seconds")
-
-    # print(results)
+    print('Starting parallel query test')
+    n_threads = [1, 2, 4]
+    thread_task_id = []
+    for i in n_threads:
+       print("N. THREADS:", i)
+       thread_task_id.append(submit_ingestion_task(ingestion_spec, '5klines', i)) # Append task IDs
+    # make a request from ids to get the time
+    # Clean datasource
+    # 2 requests, mark data as unused and after delete
+    print(results)
