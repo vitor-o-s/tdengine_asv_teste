@@ -1,0 +1,46 @@
+{
+    "type": "index_parallel",
+    "spec":{
+        "dataSchema": {
+            "dataSource": "phasor2",
+            "timestampSpec": {
+                "format": "yyyy-MM-dd HH:mm:ss.SSS",
+                "column": "ts"
+            },
+            "dimensionsSpec" : {
+              "dimensions": [
+                { "name" : "location", "type" : "string" }
+              ]
+            },
+            "metricsSpec" : [
+              { "type" : "count", "name" : "count" },
+              { "type" : "longSum", "name" : "magnitude", "fieldName" : "magnitude" },
+              { "type" : "longSum", "name" : "angle", "fieldName" : "angle" },
+              { "type" : "doubleSum", "name" : "frequency", "fieldName" : "frequency" }
+            ],
+            "granularitySpec" : {
+              "type" : "uniform",
+              "segmentGranularity" : "HOUR",
+              "queryGranularity": "NONE",
+              "intervals" : ["2012-01-03/2012-01-04"],
+              "rollup" : true
+            }
+        },
+        "ioConfig" : {
+            "type" : "index_parallel",
+            "inputSource" : {
+              "type" : "local",
+              "filter" : "*.csv",
+              "baseDir" : "data/1klines",              
+              "files": ["data/1klines/final_dataset.csv"]
+            },
+            "inputFormat": {
+                "type": "csv",
+                "columns" : ["ts", "magnitude", "angle", "frequency", "location"]
+            }
+        },
+        "tuningConfig": {
+            "type": "index_parallel"
+        }
+    }
+}

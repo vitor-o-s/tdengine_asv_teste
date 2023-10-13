@@ -43,7 +43,7 @@ echo "timescaledb Stoped"
 
 # Start Druid
 echo "Starting Druid Container"
-sudo docker compose up -d
+sudo docker compose up -p druid -d
 wait
 echo "Druid is running"
 
@@ -52,7 +52,7 @@ echo "Running Tests"
 python3 conexao_druid.py
 
 # Stop and remove Druid
-sudo docker compose down
+sudo docker compose down -v
 # sudo docker remove tdengine
 # wait
 echo "Druid Stoped"
