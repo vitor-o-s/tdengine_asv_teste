@@ -71,7 +71,7 @@ if __name__ == "__main__":
         while response.json()['status']['status'] != 'SUCCESS':
             time.sleep(3)
             response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
-        results.append({f"tempo_{file}_copia": response.json()['status']['duration']})
+        results.append({f"tempo_{file}_copia": response.json()['status']['duration']/1000})
         time.sleep(3)
 
         # Query
@@ -98,10 +98,10 @@ if __name__ == "__main__":
         # Kill data
         # kill_url = 'http://localhost:8081/druid/indexer/v1/task'
         # kill_json = json.dumps({})
-        # interval = "1000-01-01/2023-10-13"
+        interval = "1000-01-01/2023-10-13"
         # kill_url = f'http://localhost:8081/druid/coordinator/v1/datasources/phasor/intervals/{interval}'
         # response = requests.delete(kill_url)
-        # Check the response
+        # # Check the response
         # if response.status_code == 200:
         #    print("Ingestion task submitted successfully!")
         #    print("Task ID:", response.json()['task'])
@@ -110,6 +110,31 @@ if __name__ == "__main__":
         #     print("Failed to submit ingestion task!")
         #     print("Status Code:", response.status_code)
         #     print("Error Response:", response.text)
+        
+        task_url = "http://localhost:8081/druid/indexer/v1/task"
+        headers = {'Content-Type': 'application/json'}
+        
+        # Construct the task payload
+        task_payload = {
+            "type": "kill",
+            "id": f"kill_phasor_{interval.replace('/', '_')}",
+            "dataSource": 'phasor',
+            "interval": interval
+        }
+        
+        # Convert the task payload to JSON format
+        task_payload_json = json.dumps(task_payload)
+        
+        response = requests.post(task_url, data=task_payload_json, headers=headers)
+        
+        if response.status_code == 200:
+            print("Kill task submitted successfully!")
+            print("Task ID:", response.json()['task'])
+        else:
+            print("Failed to submit kill task!")
+            print("Status Code:", response.status_code)
+            print("Error Response:", response.text)
+
         time.sleep(5)
         print('Seguindo')
 
@@ -122,13 +147,13 @@ if __name__ == "__main__":
     thread_task_id = []
     for i in n_threads:
        print("N. THREADS:", i)
-       task_id = submit_ingestion_task(ingestion_spec, '5klines', i)
+       task_id = submit_ingestion_task(ingestion_spec, '10klines', i)
        time.sleep(3)
        response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
        while response.json()['status']['status'] != 'SUCCESS':
           time.sleep(3)
           response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
-       results.append({f"tempo_{i}_threads": response.json()['status']['duration']})
+       results.append({f"tempo_{i}_threads": response.json()['status']['duration']/1000})
 
     # make a request from ids to get the time
     # Clean datasource
