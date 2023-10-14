@@ -12,14 +12,15 @@ DRUID_BROKER_URL = 'druid://localhost:8082/druid/v2/sql/'
 # SCHEMA = ("ts", "magnitude", "angle", "frequency", "location")
 
 # Queries might need to be adapted based on your Druid data schema
-query_by_interval = "SELECT * FROM phasor WHERE __time BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 02:00:24.000'"
+query_by_interval = "SELECT * FROM phasor WHERE __time BETWEEN TIMESTAMP '2012-01-03 01:00:24.000' AND '2012-01-03 02:00:24.000'"
 query_exact_time = "SELECT * FROM phasor WHERE __time = TIMESTAMP '2012-01-03 01:00:27.000'"
 query_with_avg = "SELECT AVG(frequency) FROM phasor"
 query_with_avg_by_interval = "SELECT AVG(magnitude) FROM phasor WHERE __time BETWEEN TIMESTAMP '2012-01-03 01:00:24.000' AND '2012-01-03 02:00:24.000'"
 
 def submit_ingestion_task(ingestion_spec_json, file_path, max_num_concurrent_sub_tasks=None):
     # Update the file path in the ingestion spec
-    ingestion_spec_json['spec']['ioConfig']['inputSource']['baseDir'] = 'data/' + file_path
+    # ingestion_spec_json['spec']['ioConfig']['inputSource']['baseDir'] = 'data/' + file_path
+    ingestion_spec_json['spec']['ioConfig']['inputSource']['files'] = ['data/' + file_path + '/final_dataset.csv']
     
     # If task type is parallel, set the number of concurrent sub-tasks
     if max_num_concurrent_sub_tasks is not None:
@@ -71,7 +72,7 @@ if __name__ == "__main__":
             time.sleep(3)
             response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
         results.append({f"tempo_{file}_copia": response.json()['status']['duration']})
-
+        time.sleep(3)
 
         # Query
         cursor.execute(query_by_interval)
@@ -89,6 +90,30 @@ if __name__ == "__main__":
 
         # End of tests
         # 2 requests, mark data as unused and after delete
+        # Mark Unused
+        unused_url = 'http://localhost:8081/druid/coordinator/v1/datasources/phasor/markUnused'
+        unused_json = json.dumps({"interval": "1000-01-01/2023-10-13"})
+        response = requests.post(unused_url, data=unused_json, headers={'Content-Type': 'application/json'})
+        time.sleep(3)
+        # Kill data
+        # kill_url = 'http://localhost:8081/druid/indexer/v1/task'
+        # kill_json = json.dumps({})
+        # interval = "1000-01-01/2023-10-13"
+        # kill_url = f'http://localhost:8081/druid/coordinator/v1/datasources/phasor/intervals/{interval}'
+        # response = requests.delete(kill_url)
+        # Check the response
+        # if response.status_code == 200:
+        #    print("Ingestion task submitted successfully!")
+        #    print("Task ID:", response.json()['task'])
+        #    # return response.json()['task']
+        # else:
+        #     print("Failed to submit ingestion task!")
+        #     print("Status Code:", response.status_code)
+        #     print("Error Response:", response.text)
+        time.sleep(5)
+        print('Seguindo')
+
+        # response = requests.post(kill_url, data=kill_json, headers={'Content-Type': 'application/json'})
         # Wait until success
 
     # Parallel Querying
