@@ -97,7 +97,14 @@ if __name__ == "__main__":
     thread_task_id = []
     for i in n_threads:
        print("N. THREADS:", i)
-       thread_task_id.append(submit_ingestion_task(ingestion_spec, '5klines', i)) # Append task IDs
+       task_id = submit_ingestion_task(ingestion_spec, '5klines', i)
+       time.sleep(3)
+       response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
+       while response.json()['status']['status'] != 'SUCCESS':
+          time.sleep(3)
+          response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
+       results.append({f"tempo_{i}_threads": response.json()['status']['duration']})
+
     # make a request from ids to get the time
     # Clean datasource
     # 2 requests, mark data as unused and after delete
