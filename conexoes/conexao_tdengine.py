@@ -1,8 +1,8 @@
 import concurrent.futures
-import os
+import csv
 import taos
 
-from utils.utils import get_balanced_sets, load_csv_data, loading_data
+# from utils.utils import load_csv_data
 import timeit 
 
 database_name = "teste"
@@ -37,6 +37,20 @@ query_by_interval = """ SELECT * FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:
 query_exact_time = """ SELECT * FROM city01 WHERE ts = '2012-01-03 01:00:27.233' """
 query_with_avg = """ SELECT AVG(frequency) FROM city01 """
 query_with_avg_by_interval = """ SELECT AVG(magnitude) FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+
+def load_csv_data(file_path):
+    """
+    Load data from a CSV file.
+
+    :param file_path: str, path to the CSV file
+    :return: list of tuples, each tuple represents a row of data
+    """
+    data = []
+    with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            data.append(tuple(row))
+    return data
 
 def copy_files(tables: list[str], paths: list[str]):
     copy_query = "INSERT INTO \n"
@@ -84,7 +98,7 @@ if __name__ == "__main__":
     conn.execute(create_stable_query)
     conn.execute(create_table_query)
     
-    files = ["1klines", "5klines", "10klines", "50klines"]# , "100klines", "500klines", "648klines", "1Mlines"]
+    files = ["1klines", "5klines", "10klines", "50klines", "100klines", "500klines", "648klines", "1Mlines"]
     for file in files:
         # Batch test
         paths = [BASE_DIR + file + '/'+ str(i) + '_loc.csv' for i in range(1,7)]
@@ -114,12 +128,12 @@ if __name__ == "__main__":
     # path = BASE_DIR + '10klines/' # final_dataset.csv' #648Klines
     lines = []
     for i in range(1,7):
-        data = load_csv_data(BASE_DIR + '10klines/' + f'{i}_loc.csv') #648Klines
+        data = load_csv_data(BASE_DIR + '648klines/' + f'{i}_loc.csv') #648Klines
         # print(data[0])
         data = [(row[0].replace("'", ""), *row[1:]) for row in data]
         formated_lines = [f"INSERT INTO city0{str(i)} USING phasor TAGS({str(i)}) VALUES {x};" for x in data]
         lines += formated_lines
-    n_threads = [1, 2, 4] # , 8, 16, 32]
+    n_threads = [1, 2, 4 , 8, 16, 32]
     for i in n_threads:
         print("N. THREADS:", i)        
         slices = create_slices(lines, i)
