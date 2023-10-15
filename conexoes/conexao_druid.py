@@ -39,6 +39,46 @@ def submit_ingestion_task(ingestion_spec_json, file_path, max_num_concurrent_sub
         print("Status Code:", response.status_code)
         print("Error Response:", response.text)
 
+def delete_table(task_id):
+    # Mark Unused        
+    unused_url = 'http://localhost:8081/druid/coordinator/v1/datasources/phasor/markUnused'
+    unused_json = json.dumps({"interval": "1000-01-01/2023-10-13"})
+    response = requests.post(unused_url, data=unused_json, headers={'Content-Type': 'application/json'})
+    time.sleep(3)
+
+    # Delete task
+    interval = "1000-01-01/2023-10-13"        
+    task_url = "http://localhost:8081/druid/indexer/v1/task"
+    headers = {'Content-Type': 'application/json'}
+    
+    # Construct the task payload
+    task_payload = {
+        "type": "kill",
+        "id": f"kill_phasor_{task_id}_{interval.replace('/', '_')}",
+        "dataSource": 'phasor',
+        "interval": interval
+    }
+    
+    # Convert the task payload to JSON format
+    task_payload_json = json.dumps(task_payload)
+    
+    response = requests.post(task_url, data=task_payload_json, headers=headers)
+    
+    if response.status_code == 200:
+        print("Kill task submitted successfully!")
+        print("Task ID:", response.json()['task'])
+        task_id = response.json()['task']
+        time.sleep(10)
+        response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
+        print(response.json()['status']['status'])
+        # while response.json()['status']['status'] != 'SUCCESS':
+        #   time.sleep(3)
+        #   response = requests.post(task_url, data=task_payload_json, headers=headers)
+    else:
+        print("Failed to submit kill task!")
+        print("Status Code:", response.status_code)
+        print("Error Response:", response.text)
+    
 
 if __name__ == "__main__":
     conn = connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http')
@@ -52,7 +92,7 @@ if __name__ == "__main__":
     for file in files:
 
         # Batch
-        file_path = BASE_DIR + file + '/final_dataset.csv'
+        # file_path = BASE_DIR + file + '/final_dataset.csv'
         
         # If using 'index_parallel', specify the maximum number of concurrent sub-tasks
         max_num_concurrent_sub_tasks = None  # Adjust as needed
@@ -66,10 +106,11 @@ if __name__ == "__main__":
             time.sleep(3)
             response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
         results.append({f"tempo_{file}_copia": response.json()['status']['duration']/1000})
-        time.sleep(3)
+        time.sleep(10)
 
         # Query
-        cursor.execute(query_by_interval)
+        print('Starting Query')
+        # cursor.execute(query_by_interval)
         lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
         results.append({f"tempo_{file}_query_by_interval":timeit.timeit(lambda_query_by_interval, number=1)})
 
@@ -83,37 +124,9 @@ if __name__ == "__main__":
         results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
         # End of tests
-        # Mark Unused
-        unused_url = 'http://localhost:8081/druid/coordinator/v1/datasources/phasor/markUnused'
-        unused_json = json.dumps({"interval": "1000-01-01/2023-10-13"})
-        response = requests.post(unused_url, data=unused_json, headers={'Content-Type': 'application/json'})
-        time.sleep(3)
-        interval = "1000-01-01/2023-10-13"        
-        task_url = "http://localhost:8081/druid/indexer/v1/task"
-        headers = {'Content-Type': 'application/json'}
-        
-        # Construct the task payload
-        task_payload = {
-            "type": "kill",
-            "id": f"kill_phasor_{interval.replace('/', '_')}",
-            "dataSource": 'phasor',
-            "interval": interval
-        }
-        
-        # Convert the task payload to JSON format
-        task_payload_json = json.dumps(task_payload)
-        
-        response = requests.post(task_url, data=task_payload_json, headers=headers)
-        
-        if response.status_code == 200:
-            print("Kill task submitted successfully!")
-            print("Task ID:", response.json()['task'])
-        else:
-            print("Failed to submit kill task!")
-            print("Status Code:", response.status_code)
-            print("Error Response:", response.text)
-
-        time.sleep(5)
+        print('Starting DROP')
+        delete_table(task_id)
+        time.sleep(10)
         print('Seguindo')
 
     # Parallel Querying
@@ -129,6 +142,9 @@ if __name__ == "__main__":
           time.sleep(3)
           response = requests.get('http://localhost:8081/druid/indexer/v1/task/'+task_id+'/status')
        results.append({f"tempo_{i}_threads": response.json()['status']['duration']/1000})
+       time.sleep(5)
+       delete_table(task_id)
+       time.sleep(10)
 
     # make a request from ids to get the time
     # Clean datasource
