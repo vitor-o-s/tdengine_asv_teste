@@ -33,10 +33,10 @@ drop_db_query = "DROP DATABASE IF EXISTS " + database_name
 
 query_delete = "DELETE FROM phasor"
 
-query_by_interval = """ SELECT * FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
-query_exact_time = """ SELECT * FROM city01 WHERE ts = '2012-01-03 01:00:27.233' """
-query_with_avg = """ SELECT AVG(frequency) FROM city01 """
-query_with_avg_by_interval = """ SELECT AVG(magnitude) FROM city01 WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+query_by_interval = """ SELECT * FROM phasor WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
+query_exact_time = """ SELECT * FROM phasor WHERE ts = '2012-01-03 01:00:27.233' """
+query_with_avg = """ SELECT AVG(frequency) FROM phasor """
+query_with_avg_by_interval = """ SELECT AVG(magnitude) FROM phasor WHERE ts BETWEEN '2012-01-03 01:00:24.000' AND '2012-01-03 01:02:24.833' """
 
 def load_csv_data(file_path):
     """
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # path = BASE_DIR + '10klines/' # final_dataset.csv' #648Klines
     lines = []
     for i in range(1,7):
-        data = load_csv_data(BASE_DIR + '648klines/' + f'{i}_loc.csv') #648Klines
+        data = load_csv_data(BASE_DIR + '100klines/' + f'{i}_loc.csv') #648Klines
         # print(data[0])
         data = [(row[0].replace("'", ""), *row[1:]) for row in data]
         formated_lines = [f"INSERT INTO city0{str(i)} USING phasor TAGS({str(i)}) VALUES {x};" for x in data]
