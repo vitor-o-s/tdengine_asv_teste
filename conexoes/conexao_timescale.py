@@ -73,10 +73,6 @@ def parallel_insert(data, i):
         # Wait for all threads to complete
         for future in concurrent.futures.as_completed(futures):
             future.result()
-    with psycopg2.connect(CONNECTION) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query_delete)
-        cursor.close()
 
 if __name__ == "__main__":
     with psycopg2.connect(CONNECTION) as conn:
@@ -85,16 +81,13 @@ if __name__ == "__main__":
         cursor = conn.cursor()
         cursor.execute(query_create_phasor_hypertable)
         mgr = CopyManager(conn, "phasor", SCHEMA)
-        # Aqui será usado for para passar os caminhos de arquivos
-        files = ["1klines", "5klines", "10klines", "50klines"]# , "100klines", "500klines", "648klines", "1Mlines"]
+        files = ["1klines", "5klines", "10klines", "50klines", "100klines", "500klines", "648klines", "1Mlines"]
         for file in files:
             data = loading_data(BASE_DIR + file + "/final_dataset.csv")
 
             # Batch test
             lambda_copy = lambda: mgr.copy(data)
             results.append({f"tempo_{file}_copia":timeit.timeit(lambda_copy, number=1)})
-            # cursor.execute(query_compression_table)
-            # cursor.execute(query_compression_policy)
 
             # Query
             lambda_query_by_interval = lambda: cursor.execute(query_by_interval)
@@ -109,12 +102,6 @@ if __name__ == "__main__":
             lambda_query_with_avg_by_interval = lambda: cursor.execute(query_with_avg_by_interval)
             results.append({f"tempo_{file}_query_with_avg_by_interval":timeit.timeit(lambda_query_with_avg_by_interval, number=1)})
 
-            # Compression Test
-            # time.sleep(10)
-            # cursor.execute(query_hypertable_size)
-            # for row in cursor.fetchall():
-            #    print(row)        
-            
             # End of tests
             cursor.execute(query_delete)
         cursor.close()
@@ -122,14 +109,18 @@ if __name__ == "__main__":
     # Parallel Ingestion
     # The same datasize from the original paper
     print('Iniciando teste de paralelismo')
-    file_path = BASE_DIR + '10klines/final_dataset.csv' #648Klines
+    file_path = BASE_DIR + '100klines/final_dataset.csv' #648Klines
     data = load_csv_data(file_path)
-    n_threads = [1, 2, 4] # , 8, 16, 32]
+    n_threads = [1, 2, 4, 8, 16, 32]
     for i in n_threads:
         print("N. THREADS:", i)
         elapsed_time = timeit.timeit(lambda: parallel_insert(data, i), number=1)
         results.append({f"tempo_{i}_threads": elapsed_time})
         print(f"Time taken with {i} threads: {elapsed_time:.2f} seconds")
+        with psycopg2.connect(CONNECTION) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query_delete)
+            cursor.close()
 
     # Teardown
     with psycopg2.connect(CONNECTION) as conn:
