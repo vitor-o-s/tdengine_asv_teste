@@ -1,9 +1,173 @@
-<mxfile host="app.diagrams.net" modified="2023-11-07T14:37:30.601Z" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0" version="21.1.2" etag="oFwSTOqLiTQAuXow9ti-" type="github">
+<mxfile host="app.diagrams.net" modified="2023-11-07T14:47:17.683Z" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0" etag="5oY6RCL4bHZocZ1Xj_UA" version="21.1.2" type="github">
   <diagram name="Página-1" id="QLhagCA2dk7NCxS1nCeT">
-    <mxGraphModel>
+    <mxGraphModel dx="1050" dy="577" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="MhnIctCamqlrGh-JIDvL-1" value="Tabela Padrão em SGBDR" style="swimlane;startSize=20;horizontal=1;containerType=tree;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};" vertex="1" parent="1">
+          <mxGeometry x="100" y="70" width="550" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-2" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-1" source="MhnIctCamqlrGh-JIDvL-4" target="MhnIctCamqlrGh-JIDvL-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-3" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-1" source="MhnIctCamqlrGh-JIDvL-4" target="MhnIctCamqlrGh-JIDvL-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-4">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+            <mxGeometry x="252.5" y="40" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-5" value="" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="140" y="100" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-6" value="" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="270" y="100" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-7" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" target="MhnIctCamqlrGh-JIDvL-8" source="MhnIctCamqlrGh-JIDvL-5" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="140" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-8" value="XXXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="20" y="160" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-9" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" target="MhnIctCamqlrGh-JIDvL-10" source="MhnIctCamqlrGh-JIDvL-6" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-10" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="190" y="160" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-11" value="" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;elbow=vertical;startArrow=none;endArrow=none;" edge="1" source="MhnIctCamqlrGh-JIDvL-4" target="MhnIctCamqlrGh-JIDvL-12" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-12">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+            <mxGeometry x="410" y="100" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-13" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" target="MhnIctCamqlrGh-JIDvL-14" source="MhnIctCamqlrGh-JIDvL-6" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-14" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="317.5" y="160" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-15" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" target="MhnIctCamqlrGh-JIDvL-16" source="MhnIctCamqlrGh-JIDvL-5" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-16" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry x="100" y="160" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-17" value="" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;elbow=vertical;startArrow=none;endArrow=none;" edge="1" target="MhnIctCamqlrGh-JIDvL-18" source="MhnIctCamqlrGh-JIDvL-12" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="XXX" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-18">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+            <mxGeometry x="410" y="160" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-19" value="" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;elbow=vertical;startArrow=none;endArrow=none;" edge="1" target="MhnIctCamqlrGh-JIDvL-20" source="MhnIctCamqlrGh-JIDvL-12" parent="MhnIctCamqlrGh-JIDvL-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="375" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="XXX" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-20">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-1">
+            <mxGeometry x="485" y="160" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-21" value="Chunck (Tabela)" style="swimlane;startSize=20;horizontal=1;containerType=tree;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};" vertex="1" parent="1">
+          <mxGeometry x="290" y="320" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-22" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-21" source="MhnIctCamqlrGh-JIDvL-24" target="MhnIctCamqlrGh-JIDvL-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-23" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-21" source="MhnIctCamqlrGh-JIDvL-24" target="MhnIctCamqlrGh-JIDvL-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-24">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-21">
+            <mxGeometry x="111" y="40" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-25" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-21">
+          <mxGeometry x="60" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-26" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-21">
+          <mxGeometry x="150" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-42" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-21" source="MhnIctCamqlrGh-JIDvL-25" target="MhnIctCamqlrGh-JIDvL-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-43" value="Chunck (Tabela)" style="swimlane;startSize=20;horizontal=1;containerType=tree;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};" vertex="1" parent="1">
+          <mxGeometry x="20" y="320" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-44" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-43" source="MhnIctCamqlrGh-JIDvL-46" target="MhnIctCamqlrGh-JIDvL-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-45" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-43" source="MhnIctCamqlrGh-JIDvL-46" target="MhnIctCamqlrGh-JIDvL-48">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-46">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-43">
+            <mxGeometry x="111" y="40" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-47" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-43">
+          <mxGeometry x="60" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-48" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-43">
+          <mxGeometry x="150" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-49" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-43" source="MhnIctCamqlrGh-JIDvL-47" target="MhnIctCamqlrGh-JIDvL-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-50" value="Chunck (Tabela)" style="swimlane;startSize=20;horizontal=1;containerType=tree;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};" vertex="1" parent="1">
+          <mxGeometry x="560" y="320" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-51" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-50" source="MhnIctCamqlrGh-JIDvL-53" target="MhnIctCamqlrGh-JIDvL-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-52" value="" style="edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-50" source="MhnIctCamqlrGh-JIDvL-53" target="MhnIctCamqlrGh-JIDvL-55">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" treeRoot="1" id="MhnIctCamqlrGh-JIDvL-53">
+          <mxCell style="whiteSpace=wrap;html=1;align=center;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-50">
+            <mxGeometry x="111" y="40" width="65" height="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-54" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-50">
+          <mxGeometry x="60" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-55" value="XXX" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="MhnIctCamqlrGh-JIDvL-50">
+          <mxGeometry x="150" y="80" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-56" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="MhnIctCamqlrGh-JIDvL-50" source="MhnIctCamqlrGh-JIDvL-54" target="MhnIctCamqlrGh-JIDvL-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-57" value="Nós da Árvore-B" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="680" y="210" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-58" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="680" y="240" width="30" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-59" value="Em memória" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="710" y="230" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-60" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="680" y="270" width="30" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="MhnIctCamqlrGh-JIDvL-61" value="Em Disco" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="720" y="260" width="70" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
