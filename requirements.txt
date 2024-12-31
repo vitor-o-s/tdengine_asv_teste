@@ -1,7 +1,11 @@
+cffi==1.17.1
+cryptography==44.0.0
 numpy==2.2.1
+oracledb==2.5.1
 pandas==2.2.3
 pgcopy==1.6.0
 psycopg2==2.9.10
+pycparser==2.22
 python-dateutil==2.9.0.post0
 pytz==2024.2
 six==1.17.0
