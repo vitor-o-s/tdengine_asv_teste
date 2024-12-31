@@ -36,14 +36,16 @@ def transform_dataset(path: str):
 
 if __name__ == "__main__":
     dataset_list = [
-        "data/1klines",
-        "data/5klines",
-        "data/10klines",
-        "data/50klines",
+        # "data/1klines",
+        # "data/5klines",
+        # "data/10klines",
+        # "data/50klines",
         "data/100klines",
         "data/500klines",
-        "data/648klines",
-        "data/1Mlines"
+        # "data/648klines",
+        "data/1mlines",
+        "data/10mlines",
+        "data/100mlines"
     ]
 
     for dataset in dataset_list:

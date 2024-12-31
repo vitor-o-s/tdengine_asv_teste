@@ -14,7 +14,7 @@ def split_dataset(path: str):
     fifth_loc = full_dataset.iloc[:, [0, 9, 10, 17]]
     sixth_loc = full_dataset.iloc[:, [0, 11, 12, 18]]
 	
-	# Save new datasets 
+    # Save new datasets
     first_loc.to_csv(path + '/1_loc.csv', index=False, header=False)
     second_loc.to_csv(path + '/2_loc.csv', index=False, header=False)
     third_loc.to_csv(path + '/3_loc.csv', index=False, header=False)
@@ -24,14 +24,18 @@ def split_dataset(path: str):
 
 
 if __name__ == "__main__":
-    dataset_list = ["data/1klines",
-                    "data/5klines",
-                    "data/10klines",
-                    "data/50klines",
-                    "data/100klines",
-                    "data/500klines",
-                    "data/648klines",
-                    "data/1Mlines"]
+    dataset_list = [
+        # "data/1klines",
+        # "data/5klines",
+        # "data/10klines",
+        # "data/50klines",
+        "data/100klines",
+        "data/500klines",
+        # "data/648klines",
+        "data/1mlines",
+        "data/10mlines",
+        "data/100mlines"
+    ]
 
     for dataset in dataset_list:
         split_dataset(dataset)
