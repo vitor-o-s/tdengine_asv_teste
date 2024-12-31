@@ -18,8 +18,9 @@ query_create_phasor_hypertable = """
                                     frequency FLOAT,
                                     location INT
                                 );
-                                SELECT create_hypertable('phasor', 'ts');
+                                --SELECT create_hypertable('phasor', 'ts');
                                 """
+'''
 query_hypertable_size = """
                         SELECT 
                             hypertable_name, 
@@ -34,7 +35,9 @@ query_compression_table = """
                             timescaledb.compress_segmentby = 'location'
                         );
                         """
+
 query_compression_policy = "SELECT add_compression_policy('phasor', INTERVAL '7 days');"
+'''
 
 query_delete = "DELETE FROM phasor"
 
@@ -49,7 +52,7 @@ file_path = BASE_DIR + "1klines/final_dataset.csv"
 def teardown(cursor):
     print("Cleaning the DB")
     cursor.execute("DROP TABLE phasor;")
-    print("Done! Clossing cursor and ending application!")
+    print("Done! Closing cursor and ending application!")
 
 
 def write_line(conn, queries):
@@ -84,7 +87,8 @@ if __name__ == "__main__":
         cursor = conn.cursor()
         cursor.execute(query_create_phasor_hypertable)
         mgr = CopyManager(conn, "phasor", SCHEMA)
-        files = ["1klines", "5klines", "10klines", "50klines", "100klines", "500klines", "648klines", "1Mlines"]
+        # files = ["1klines", "5klines", "10klines", "50klines", "100klines", "500klines", "648klines", "1Mlines"]
+        files = ["100klines", "500klines", "1mlines", "10mlines", "100mlines"]
         for file in files:
             data = loading_data(BASE_DIR + file + "/final_dataset.csv")
 
@@ -113,7 +117,7 @@ if __name__ == "__main__":
     # Parallel Ingestion
     # The same datasize from the original paper
     print('Iniciando teste de paralelismo')
-    file_path = BASE_DIR + '100klines/final_dataset.csv'  # 648Klines
+    file_path = BASE_DIR + '1mlines/final_dataset.csv'  # 648Klines
     data = load_csv_data(file_path)
     n_threads = [1, 2, 4, 8, 16, 32]
     for i in n_threads:
